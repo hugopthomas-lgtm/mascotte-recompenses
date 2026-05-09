@@ -50,52 +50,188 @@ body {
 .container { max-width: 760px; margin: 0 auto; padding: 16px; }
 
 /* Profile select */
-.profile-select { text-align: center; padding-top: 24px; }
-.profile-select h1 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink); font-size: 56px; line-height: 1; margin-bottom: 4px; }
-.profile-select .sub { color: var(--text-soft); font-size: 16px; margin-bottom: 28px; }
-.profiles { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+:root {
+  --theo-bg: #c8d6b8;
+  --giulia-bg: #f3d9a8;
+  --card-border: #e8d4a8;
+}
+
+/* Split-color full-page background, only on home screen */
+.profile-bg {
+  position: fixed; inset: 0; z-index: -2;
+  background: linear-gradient(90deg, var(--theo-bg) 0%, var(--theo-bg) 50%, var(--giulia-bg) 50%, var(--giulia-bg) 100%);
+}
+@media (max-width: 640px) {
+  .profile-bg { background: linear-gradient(180deg, var(--theo-bg) 0%, var(--theo-bg) 50%, var(--giulia-bg) 50%, var(--giulia-bg) 100%); }
+}
+
+.profile-select { padding-top: 26px; text-align: center; min-height: 100vh; }
+.profile-select h1 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 58px; line-height: 1; margin-bottom: 4px; text-shadow: 0 1px 2px rgba(255,255,255,0.4); }
+.profile-select .sub { color: var(--text); font-size: 15px; margin-bottom: 22px; }
+
+.zones {
+  display: grid; grid-template-columns: 1fr auto 1fr;
+  align-items: start;
+  gap: 0;
+  margin-bottom: 22px;
+}
+.zone {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 8px 16px;
+}
+
 .profile-card {
   background: var(--bg-card);
-  border: 2px solid var(--pink-soft);
-  border-radius: 28px;
-  padding: 18px 14px 16px;
-  width: 168px;
+  border: 3px solid var(--card-border);
+  border-radius: 36px;
+  padding: 24px 22px 20px;
+  width: 100%; max-width: 324px;
   cursor: pointer;
   transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
-  box-shadow: 0 4px 14px var(--shadow-soft);
+  box-shadow: 0 7px 20px rgba(60, 50, 40, 0.2);
+  text-align: center;
 }
-.profile-card:active { transform: scale(0.96); }
-.profile-card:hover { border-color: var(--pink); box-shadow: 0 8px 24px var(--shadow); }
+.profile-card:active { transform: scale(0.97); }
+.profile-card:hover { border-color: var(--pink); box-shadow: 0 11px 28px rgba(60, 50, 40, 0.28); }
 .profile-card .pic-wrap {
-  width: 130px; height: 160px; margin: 0 auto;
+  width: 270px; height: 338px; margin: 0 auto;
   display: flex; align-items: flex-end; justify-content: center;
 }
-.profile-card img { width: 130px; height: auto; max-height: 160px; object-fit: contain; }
-.profile-card h2 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink); font-size: 32px; margin-top: 8px; }
-.profile-card .pts { color: var(--text-soft); font-size: 13px; margin-top: 2px; font-weight: 500; }
-.profile-card .pts b { color: var(--gold-deep); font-weight: 700; }
-.parent-btn { background: transparent; border: 1px solid var(--text-faint); color: var(--text-soft); padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; font-family: inherit; margin-top: 28px; }
+.profile-card img { width: 270px; height: auto; max-height: 338px; object-fit: contain; }
+.profile-card h2 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 54px; line-height: 1; margin-top: 10px; }
+
+/* Star count inside the card */
+.card-count {
+  margin-top: 7px;
+  font-family: 'Caveat', cursive; font-weight: 700;
+  font-size: 27px; line-height: 1;
+  color: var(--gold-deep);
+}
+.card-count .star-icon { margin-left: 2px; }
+
+/* Stars settled at the bottom of the page, like coins in a jar */
+.stars-jar {
+  position: fixed;
+  top: 0; bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+.stars-jar-theo   { left: 0; width: 50vw; }
+.stars-jar-giulia { right: 0; width: 50vw; }
+.pile-star {
+  position: absolute;
+  font-size: 144px; line-height: 1;
+  color: #f7b733;
+  filter: drop-shadow(0 4px 6px rgba(120, 80, 20, 0.5));
+  animation: starFadeIn 0.6s ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 18ms);
+}
+@media (max-width: 760px) {
+  .pile-star { font-size: 108px; filter: drop-shadow(0 3px 5px rgba(120, 80, 20, 0.5)); }
+  .stars-jar-theo   { left: 0; right: 0; top: 0; bottom: 50vh; width: auto; }
+  .stars-jar-giulia { left: 0; right: 0; top: 50vh; bottom: 0; width: auto; }
+}
+@keyframes starFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Pretty separator */
+.zone-sep {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px 4px 0;
+  align-self: stretch;
+}
+.zone-sep .sep-line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.7) 80%, transparent);
+}
+.zone-sep .sep-heart {
+  font-size: 24px;
+  margin: 8px 0;
+  color: var(--pink);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+
+@media (max-width: 760px) {
+  .zones { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+  .zone-sep { flex-direction: row; padding: 6px 24px; align-self: auto; }
+  .zone-sep .sep-line { width: auto; height: 2px; flex: 1; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.7) 80%, transparent); }
+  .zone-sep .sep-heart { margin: 0 10px; }
+}
+@media (max-width: 460px) {
+  .profile-card { padding: 20px 16px 16px; border-radius: 28px; max-width: 288px; }
+  .profile-card .pic-wrap { width: 216px; height: 270px; }
+  .profile-card img { width: 216px; max-height: 270px; }
+  .profile-card h2 { font-size: 45px; }
+}
+
+.parent-btn { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(120, 90, 60, 0.3); color: var(--text); padding: 10px 18px; border-radius: 22px; font-size: 15px; cursor: pointer; font-family: inherit; margin-top: 4px; backdrop-filter: blur(4px); }
 .parent-btn:active { transform: scale(0.96); }
 
 /* Main */
-.main { display: none; }
-.header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
-.icon-btn { background: var(--bg-card); border: 1px solid var(--pink-soft); color: var(--text-soft); width: 40px; height: 40px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.main { display: none; position: relative; }
+.main .container { max-width: 1200px; }
+.main-bg {
+  position: fixed; inset: 0; z-index: -2;
+  background: linear-gradient(180deg,
+    #cfe1f0 0%,
+    #e2eef7 30%,
+    #e9f1f8 48%,
+    #2d3a5e 52%,
+    #1b2241 80%,
+    #11162e 100%
+  );
+}
+.main-bg::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0; bottom: 0;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.85) 0.9px, transparent 1.6px),
+    radial-gradient(circle at 38% 62%, rgba(255,255,255,0.7)  0.7px, transparent 1.4px),
+    radial-gradient(circle at 65% 28%, rgba(255,255,255,0.9)  1px, transparent 1.8px),
+    radial-gradient(circle at 82% 78%, rgba(255,255,255,0.78) 0.8px, transparent 1.5px),
+    radial-gradient(circle at 25% 85%, rgba(255,255,255,0.8)  0.6px, transparent 1.2px),
+    radial-gradient(circle at 55% 15%, rgba(255,255,255,0.6)  0.7px, transparent 1.3px),
+    radial-gradient(circle at 5% 50%,  rgba(255,255,255,0.7)  0.6px, transparent 1.2px),
+    radial-gradient(circle at 95% 40%, rgba(255,255,255,0.85) 0.8px, transparent 1.6px);
+  background-size: 130px 130px, 150px 150px, 100px 100px, 170px 170px, 110px 110px, 140px 140px, 105px 105px, 120px 120px;
+  pointer-events: none;
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: 0.6; }
+  to   { opacity: 1; }
+}
+.main .container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+}
+.main-top    { flex-shrink: 0; }
+.main-center { margin: auto 0; flex-shrink: 0; }
+.main-bottom { flex-shrink: 0; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.icon-btn { background: var(--bg-card); border: 1.5px solid var(--pink-soft); color: var(--text-soft); width: 48px; height: 48px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .icon-btn:active { transform: scale(0.92); }
-.kid-name { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink); font-size: 42px; line-height: 1; }
+.kid-name { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink); font-size: 54px; line-height: 1; }
 .kid-name .heart { color: var(--pink-soft); margin: 0 6px; }
 
 .day-bar {
   display: flex; justify-content: space-between; align-items: center;
-  font-size: 13px; color: var(--text-soft);
-  margin-bottom: 12px; padding: 0 4px;
+  font-size: 17px; color: var(--text-soft);
+  margin-bottom: 14px; padding: 0 6px;
 }
 .day-bar .date { color: var(--pink); font-weight: 600; text-transform: capitalize; }
 
 /* Mascot */
-.mascot-zone { text-align: center; margin: 6px 0 18px; }
+.mascot-zone { text-align: center; margin: 8px 0 18px; }
 .mascot-img {
-  width: 150px; height: auto; max-height: 200px;
+  width: 192px; height: auto; max-height: 256px;
   object-fit: contain;
   filter: drop-shadow(0 8px 14px var(--shadow));
   transition: transform 0.3s;
@@ -122,55 +258,57 @@ body {
 .day-progress .num .total { color: var(--text-faint); font-weight: 600; }
 .day-progress .label { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
 
-/* Routine blocks */
-.routine {
-  background: var(--bg-card);
-  border: 1px solid var(--pink-soft);
-  border-radius: 22px;
-  padding: 14px 12px 16px;
+/* Slots row : 6 lumières avec tâche matin au-dessus, soir en dessous */
+.slots-wrap {
+  background: transparent;
+  padding: 6px 4px 10px;
   margin-bottom: 14px;
-  box-shadow: 0 2px 10px var(--shadow-soft);
 }
-.routine-title {
-  display: flex; align-items: center; gap: 8px;
-  color: var(--pink-deep);
-  font-family: 'Caveat', cursive; font-weight: 700; font-size: 26px;
-  margin-bottom: 12px; padding-left: 4px;
-  line-height: 1;
-}
-.routine-title .emoji { font-size: 22px; }
-.tasks-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.slots-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
 @media (max-width: 600px) {
-  .tasks-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .slots-row { grid-template-columns: repeat(3, 1fr); gap: 14px; }
 }
 
-/* Task light */
-.task {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  cursor: pointer;
-  padding: 6px 2px;
-  border-radius: 14px;
-  transition: background 0.2s;
+.slot {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 6px 4px;
 }
-.task:active { background: rgba(216, 139, 156, 0.08); }
-.task .icon-emoji { font-size: 30px; line-height: 1; }
-.task .label { font-size: 10.5px; color: var(--text-soft); text-align: center; line-height: 1.15; min-height: 24px; max-width: 90px; }
-.task .light {
-  width: 50px; height: 50px; border-radius: 50%;
+.task-btn {
+  background: transparent; border: 0; cursor: pointer; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; border-radius: 14px; width: 100%;
+  transition: background 0.2s, opacity 0.2s;
+  color: inherit;
+}
+.task-btn:active { background: rgba(216, 139, 156, 0.1); transform: scale(0.96); }
+.task-btn .icon { font-size: 38px; line-height: 1; transition: filter 0.3s, opacity 0.3s; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18)); }
+.task-btn .label { font-size: 13px; text-align: center; line-height: 1.18; min-height: 30px; max-width: 110px; font-weight: 600; }
+.task-btn.morning .label { color: #3a4660; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+.task-btn.evening .label { color: #e0e8f4; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
+.task-btn.morning.done .label { color: #8593a8; text-decoration: line-through; }
+.task-btn.evening.done .label { color: #7e8ba5; text-decoration: line-through; }
+.task-btn.done .icon { filter: grayscale(0.6) opacity(0.5); }
+
+.slot-light {
+  width: 72px; height: 72px; border-radius: 50%;
+  cursor: pointer;
   background: radial-gradient(circle at 32% 28%, #faecc8 0%, #d6bd92 55%, #a4885f 100%);
-  box-shadow: inset 0 -4px 7px rgba(0,0,0,0.18), inset 0 2px 3px rgba(255,255,255,0.6), 0 2px 5px var(--shadow);
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,0.18), inset 0 3px 5px rgba(255,255,255,0.6), 0 4px 8px var(--shadow);
   display: flex; align-items: center; justify-content: center;
   position: relative;
-  transition: transform 0.15s, box-shadow 0.3s;
+  transition: box-shadow 0.4s, background 0.4s, transform 0.15s;
 }
-.task .light::before {
-  content: ''; position: absolute; inset: 5px;
-  border-radius: 50%;
+.slot-light:active { transform: scale(0.92); }
+.slot-light::before {
+  content: ''; position: absolute; inset: 8px; border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0) 50%);
   pointer-events: none;
 }
-.task:active .light { transform: scale(0.92); }
-.task.on .light {
+.slot-light.half {
+  background: radial-gradient(circle at 32% 28%, #fde9a9 0%, #ecc56d 55%, #c0852b 100%);
+  box-shadow: 0 0 14px rgba(255,213,74,0.45), inset 0 -3px 5px rgba(180,110,15,0.35), inset 0 2px 3px rgba(255,255,255,0.55);
+}
+.slot-light.full {
   background: radial-gradient(circle at 32% 28%, #fffacc 0%, #ffd862 45%, #f0a818 100%);
   box-shadow: 0 0 24px rgba(255,213,74,0.7), 0 0 44px rgba(255,213,74,0.32), inset 0 -3px 6px rgba(220,140,20,0.45), inset 0 2px 4px rgba(255,255,255,0.6);
   animation: glow 2.4s ease-in-out infinite;
@@ -179,41 +317,19 @@ body {
   0%, 100% { box-shadow: 0 0 20px rgba(255,213,74,0.6), 0 0 38px rgba(255,213,74,0.25), inset 0 -3px 6px rgba(220,140,20,0.45), inset 0 2px 4px rgba(255,255,255,0.6); }
   50%      { box-shadow: 0 0 30px rgba(255,213,74,0.9), 0 0 60px rgba(255,213,74,0.42), inset 0 -3px 6px rgba(220,140,20,0.45), inset 0 2px 4px rgba(255,255,255,0.6); }
 }
-.task .light .star {
-  font-size: 22px; line-height: 1;
+.slot-light .star {
+  font-size: 30px; line-height: 1;
   opacity: 0; transform: scale(0) rotate(-180deg);
   transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   filter: drop-shadow(0 1px 2px rgba(180,100,10,0.5));
   position: relative; z-index: 1;
 }
-.task.on .light .star { opacity: 1; transform: scale(1) rotate(0); }
+.slot-light.full .star { opacity: 1; transform: scale(1) rotate(0); }
 
-/* Week strip */
-.week-strip {
-  background: var(--bg-card);
-  border: 1px solid var(--pink-soft);
-  border-radius: 18px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-  box-shadow: 0 2px 8px var(--shadow-soft);
-}
-.week-strip .title { font-size: 12px; color: var(--text-soft); text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-.week-stars-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-.day-cell {
-  aspect-ratio: 1; border-radius: 12px;
-  background: var(--bg-soft);
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  font-size: 9px; color: var(--text-faint);
-}
-.day-cell .star-mark { font-size: 18px; opacity: 0.18; transition: all 0.3s; line-height: 1; }
-.day-cell.full .star-mark { opacity: 1; color: var(--gold-deep); filter: drop-shadow(0 0 6px var(--gold-glow)); }
-.day-cell.partial .star-mark { opacity: 0.55; color: var(--gold); }
-.day-cell.today { box-shadow: 0 0 0 2px var(--pink); }
-.day-cell .day-label { font-weight: 600; margin-top: 1px; color: var(--text-soft); }
 
 /* Milestone */
-.milestone { background: linear-gradient(135deg, var(--pink-soft), var(--bg-card)); border: 1px dashed var(--pink); border-radius: 16px; padding: 12px 14px; margin-bottom: 16px; text-align: center; font-size: 13px; color: var(--text-soft); }
-.milestone .big { color: var(--pink-deep); font-weight: 700; font-size: 16px; }
+.milestone { background: linear-gradient(135deg, var(--pink-soft), var(--bg-card)); border: 2px dashed var(--pink); border-radius: 18px; padding: 14px 18px; margin-bottom: 18px; text-align: center; font-size: 17px; color: var(--text-soft); }
+.milestone .big { color: var(--pink-deep); font-weight: 700; font-size: 21px; line-height: 1.2; margin-bottom: 3px; }
 
 /* Burst */
 .burst { position: fixed; pointer-events: none; z-index: 100; font-size: 36px; animation: burst 0.9s ease-out forwards; filter: drop-shadow(0 2px 4px var(--shadow)); }
@@ -246,6 +362,19 @@ body {
 .reward-overlay h2 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 56px; line-height: 1; margin-bottom: 14px; text-align: center; }
 .reward-overlay p { color: var(--text); text-align: center; max-width: 400px; margin-bottom: 22px; padding: 0 12px; font-size: 17px; line-height: 1.4; }
 .reward-overlay img { width: 180px; height: auto; animation: bounce 1s infinite; filter: drop-shadow(0 10px 18px rgba(120,90,60,0.25)); }
+.reward-animal {
+  font-size: 200px; line-height: 1;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.18));
+  animation: rewardPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+@keyframes rewardPop {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+@media (max-width: 480px) {
+  .reward-animal { font-size: 150px; }
+}
 .reward-overlay button { background: var(--pink); color: white; font-weight: 700; border: none; padding: 14px 32px; border-radius: 16px; cursor: pointer; font-size: 17px; font-family: inherit; box-shadow: 0 6px 18px rgba(184,106,126,0.4); }
 .reward-overlay button:active { transform: scale(0.97); }
 
@@ -261,18 +390,30 @@ body {
 
   <!-- Profile select -->
   <div class="profile-select" id="profileScreen">
+    <div class="profile-bg"></div>
+    <div class="stars-jar stars-jar-theo" id="jarTheo"></div>
+    <div class="stars-jar stars-jar-giulia" id="jarGiulia"></div>
     <h1>Bienvenue</h1>
     <p class="sub">Qui es-tu ?</p>
-    <div class="profiles">
-      <div class="profile-card" onclick="selectKid('theo')">
-        <div class="pic-wrap"><img src="theo.jpg" alt="Théodore"></div>
-        <h2>·Théodore·</h2>
-        <div class="pts"><b id="ptsTheo">0</b> jours ★</div>
+    <div class="zones">
+      <div class="zone zone-theo">
+        <div class="profile-card" onclick="selectKid('theo')">
+          <div class="pic-wrap"><img src="theo.jpg" alt="Théodore"></div>
+          <h2>·Théodore·</h2>
+          <div class="card-count"><span id="ptsTheo">0</span><span class="star-icon">★</span></div>
+        </div>
       </div>
-      <div class="profile-card" onclick="selectKid('giulia')">
-        <div class="pic-wrap"><img src="giulia.jpg" alt="Giulia"></div>
-        <h2>·Giulia·</h2>
-        <div class="pts"><b id="ptsGiulia">0</b> jours ★</div>
+      <div class="zone-sep">
+        <div class="sep-line"></div>
+        <div class="sep-heart">♡</div>
+        <div class="sep-line"></div>
+      </div>
+      <div class="zone zone-giulia">
+        <div class="profile-card" onclick="selectKid('giulia')">
+          <div class="pic-wrap"><img src="giulia.jpg" alt="Giulia"></div>
+          <h2>·Giulia·</h2>
+          <div class="card-count"><span id="ptsGiulia">0</span><span class="star-icon">★</span></div>
+        </div>
       </div>
     </div>
     <button class="parent-btn" onclick="openParent()">⚙ Espace parent</button>
@@ -280,44 +421,36 @@ body {
 
   <!-- Main screen -->
   <div class="main" id="mainScreen">
-    <div class="header">
-      <button class="icon-btn" onclick="goBack()">←</button>
-      <div class="kid-name"><span class="heart">·</span><span id="kidName"></span><span class="heart">·</span></div>
-      <button class="icon-btn" onclick="openParent()">⚙</button>
+    <div class="main-bg"></div>
+    <div class="main-top">
+      <div class="header">
+        <button class="icon-btn" onclick="goBack()">←</button>
+        <div class="kid-name"><span class="heart">·</span><span id="kidName"></span><span class="heart">·</span></div>
+        <button class="icon-btn" onclick="openParent()">⚙</button>
+      </div>
+
+      <div class="day-bar">
+        <span>Aujourd'hui</span>
+        <span class="date" id="dateLabel"></span>
+      </div>
+
+      <div class="mascot-zone">
+        <img src="theo.jpg" class="mascot-img" id="mascot" alt="mascotte">
+      </div>
+
     </div>
 
-    <div class="day-bar">
-      <span>Aujourd'hui</span>
-      <span class="date" id="dateLabel"></span>
+    <div class="main-center">
+      <div class="slots-wrap">
+        <div class="slots-row" id="slotsRow"></div>
+      </div>
     </div>
 
-    <div class="mascot-zone">
-      <img src="theo.jpg" class="mascot-img" id="mascot" alt="mascotte">
-    </div>
-
-    <div class="day-progress">
-      <div class="num"><span id="todayCount">0</span><span class="total">/<span id="todayTotal">12</span></span> ★</div>
-      <div class="label">Étoiles d'aujourd'hui</div>
-    </div>
-
-    <div class="routine">
-      <div class="routine-title"><span class="emoji">☀️</span> Le matin</div>
-      <div class="tasks-grid" id="morningGrid"></div>
-    </div>
-
-    <div class="routine">
-      <div class="routine-title"><span class="emoji">🌙</span> Le soir</div>
-      <div class="tasks-grid" id="eveningGrid"></div>
-    </div>
-
-    <div class="week-strip">
-      <div class="title">Ma semaine</div>
-      <div class="week-stars-grid" id="weekGrid"></div>
-    </div>
-
-    <div class="milestone">
-      <div class="big" id="milestoneText">🎁 Cadeau dans <span id="daysLeft">180</span> jours</div>
-      <div><span id="totalDays">0</span> jours d'étoiles déjà</div>
+    <div class="main-bottom">
+      <div class="milestone">
+        <div class="big" id="milestoneText">🎁 Cadeau dans <span id="daysLeft">180</span> jours</div>
+        <div><span id="totalDays">0</span> jours d'étoiles déjà</div>
+      </div>
     </div>
   </div>
 
@@ -346,33 +479,79 @@ body {
 
 <!-- Reward overlay -->
 <div class="reward-overlay" id="rewardOverlay">
-  <img src="theo.jpg" id="rewardMascot" alt="">
-  <h2 id="rewardTitle">🎉 Bravo ! 🎉</h2>
+  <div class="reward-animal" id="rewardAnimal">🦁</div>
+  <h2 id="rewardTitle">✨ Toutes les lumières ! ✨</h2>
   <p id="rewardText"></p>
   <button onclick="closeReward()">Génial !</button>
 </div>
 
 <script>
-const TASKS = {
-  morning: [
-    { id: 'lit',      icon: '🛏️', label: "Faire son lit" },
-    { id: 'habit',    icon: '👕', label: "S'habiller" },
-    { id: 'dents_m',  icon: '🪥', label: "Brosser les dents" },
-    { id: 'petitdej', icon: '🥣', label: "Petit déj" },
-    { id: 'bonjour',  icon: '👋', label: "Dire bonjour" },
-    { id: 'ecole',    icon: '🎒', label: "Aller à l'école" }
-  ],
-  evening: [
-    { id: 'diner',    icon: '🍽️', label: "Dîner" },
-    { id: 'ranger',   icon: '🧸', label: "Ranger" },
-    { id: 'dents_s',  icon: '🪥', label: "Brosser les dents" },
-    { id: 'bain',     icon: '🛁', label: "Bain" },
-    { id: 'pyjama',   icon: '🌙', label: "Pyjama" },
-    { id: 'dodo',     icon: '📖', label: "Histoire et dodo" }
-  ]
-};
-const ALL_TASKS = [...TASKS.morning, ...TASKS.evening];
-const DAY_GOAL_COUNT = 9; // 9 sur 12 = jour réussi
+// 6 slots, chacun avec une tâche du matin (au-dessus) et une du soir (en-dessous).
+// Chaque lumière s'allume à mi-puissance quand 1 des 2 tâches est faite, à pleine puissance quand les 2 le sont.
+const SLOTS = [
+  { morning: { id: 'lit',      icon: '🛏️', label: "Faire son lit" },
+    evening: { id: 'diner',    icon: '🍽️', label: "Dîner" } },
+  { morning: { id: 'habit',    icon: '👕', label: "S'habiller" },
+    evening: { id: 'ranger',   icon: '🧸', label: "Ranger" } },
+  { morning: { id: 'dents_m',  icon: '🪥', label: "Brosser les dents" },
+    evening: { id: 'dents_s',  icon: '🪥', label: "Brosser les dents" } },
+  { morning: { id: 'petitdej', icon: '🥣', label: "Petit déj" },
+    evening: { id: 'bain',     icon: '🛁', label: "Bain" } },
+  { morning: { id: 'bonjour',  icon: '👋', label: "Dire bonjour" },
+    evening: { id: 'pyjama',   icon: '🌙', label: "Pyjama" } },
+  { morning: { id: 'ecole',    icon: '🎒', label: "Aller à l'école" },
+    evening: { id: 'dodo',     icon: '📖', label: "Histoire et dodo" } }
+];
+const ALL_TASKS = SLOTS.flatMap(s => [s.morning, s.evening]);
+const DAY_GOAL_COUNT = ALL_TASKS.length; // toutes les lumières à fond = 12
+
+const ANIMALS = [
+  { emoji: '🦁', name: 'le Lion' },
+  { emoji: '🐘', name: "l'Éléphant" },
+  { emoji: '🦒', name: 'la Girafe' },
+  { emoji: '🦓', name: 'le Zèbre' },
+  { emoji: '🐅', name: 'le Tigre' },
+  { emoji: '🐆', name: 'le Léopard' },
+  { emoji: '🦔', name: 'le Hérisson' },
+  { emoji: '🦌', name: 'le Cerf' },
+  { emoji: '🦏', name: 'le Rhinocéros' },
+  { emoji: '🦛', name: "l'Hippopotame" },
+  { emoji: '🐊', name: 'le Crocodile' },
+  { emoji: '🐢', name: 'la Tortue' },
+  { emoji: '🦎', name: 'le Caméléon' },
+  { emoji: '🐍', name: 'le Serpent' },
+  { emoji: '🦅', name: "l'Aigle" },
+  { emoji: '🦉', name: 'la Chouette' },
+  { emoji: '🦋', name: 'le Papillon' },
+  { emoji: '🐠', name: 'le Poisson' },
+  { emoji: '🦈', name: 'le Requin' },
+  { emoji: '🐬', name: 'le Dauphin' },
+  { emoji: '🐳', name: 'la Baleine' },
+  { emoji: '🐙', name: 'la Pieuvre' },
+  { emoji: '🦀', name: 'le Crabe' },
+  { emoji: '🐧', name: 'le Manchot' },
+  { emoji: '🦩', name: 'le Flamant' },
+  { emoji: '🦜', name: 'le Perroquet' },
+  { emoji: '🦚', name: 'le Paon' },
+  { emoji: '🐝', name: "l'Abeille" },
+  { emoji: '🐞', name: 'la Coccinelle' },
+  { emoji: '🐌', name: "l'Escargot" },
+  { emoji: '🐿️', name: "l'Écureuil" },
+  { emoji: '🦝', name: 'le Raton laveur' },
+  { emoji: '🦊', name: 'le Renard' },
+  { emoji: '🐻', name: "l'Ours" },
+  { emoji: '🐼', name: 'le Panda' },
+  { emoji: '🐨', name: 'le Koala' },
+  { emoji: '🐰', name: 'le Lapin' },
+  { emoji: '🦘', name: 'le Kangourou' },
+  { emoji: '🐵', name: 'le Singe' },
+  { emoji: '🦥', name: 'le Paresseux' }
+];
+function getDayAnimal(dateStr) {
+  let h = 0;
+  for (let i = 0; i < dateStr.length; i++) h = ((h * 31) + dateStr.charCodeAt(i)) >>> 0;
+  return ANIMALS[h % ANIMALS.length];
+}
 const KIDS = ['theo', 'giulia'];
 const KID_NAMES = { theo: 'Théodore', giulia: 'Giulia' };
 const KID_IMAGES = { theo: 'theo.jpg', giulia: 'giulia.jpg' };
@@ -424,33 +603,71 @@ function dayTaskCount(kid, dateStr) {
   return Object.values(day).filter(v => v).length;
 }
 function isDayFull(kid, dateStr)    { return dayTaskCount(kid, dateStr) >= DAY_GOAL_COUNT; }
-function isDayPartial(kid, dateStr) { const c = dayTaskCount(kid, dateStr); return c > 0 && !isDayFull(kid, dateStr); }
 function totalSuccessfulDays(kid) {
   let n = 0;
   Object.keys(state[kid].tasks).forEach(d => { if (isDayFull(kid, d)) n++; });
   return n;
 }
-function mondayOfWeek(date) {
-  const d = new Date(date);
-  const day = d.getDay() || 7;
-  if (day !== 1) d.setDate(d.getDate() - (day - 1));
-  return d;
+
+function renderStarsJar(elId, count, side) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  if (count === 0) return;
+  const w = el.clientWidth;
+  if (w === 0) return;
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  const baseSize = isMobile ? 108 : 144;
+  const colSpace = baseSize * 0.7;
+  const rowH = baseSize * 0.55;
+  const padding = baseSize * 0.45; // assez d'air pour que la rotation ne déborde pas
+  const cols = Math.max(1, Math.floor((w - padding * 2 - baseSize * 0.4) / colSpace));
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    s.className = 'pile-star';
+    s.textContent = '★';
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const brickOffset = (row % 2) * (colSpace * 0.5);
+    const jitterX = (((i * 7) % 13) - 6);
+    const jitterY = (((i * 11) % 9) - 4);
+    const rot = ((i * 29) % 31) - 15;
+    const scale = 0.85 + ((i * 17) % 5) * 0.06;
+    const offset = padding + col * colSpace + brickOffset + jitterX;
+    if (side === 'right') s.style.right = offset + 'px';
+    else                  s.style.left  = offset + 'px';
+    s.style.bottom = (padding + row * rowH + jitterY) + 'px';
+    s.style.transform = `rotate(${rot}deg) scale(${scale})`;
+    s.style.zIndex = i;
+    s.style.setProperty('--i', i);
+    el.appendChild(s);
+  }
 }
 
 function refreshProfileScreen() {
-  document.getElementById('ptsTheo').textContent   = totalSuccessfulDays('theo');
-  document.getElementById('ptsGiulia').textContent = totalSuccessfulDays('giulia');
+  const sideMap = { theo: 'left', giulia: 'right' };
+  KIDS.forEach(k => {
+    const n = totalSuccessfulDays(k);
+    const cap = k === 'theo' ? 'Theo' : 'Giulia';
+    document.getElementById('pts' + cap).textContent = n;
+    renderStarsJar('jar' + cap, n, sideMap[k]);
+  });
 }
+
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (!currentKid) refreshProfileScreen();
+  }, 120);
+});
 
 function selectKid(kid) {
   currentKid = kid;
   document.getElementById('profileScreen').style.display = 'none';
   document.getElementById('mainScreen').style.display = 'block';
   document.getElementById('kidName').textContent = KID_NAMES[kid];
-  const img = KID_IMAGES[kid];
-  document.getElementById('mascot').src = img;
-  document.getElementById('rewardMascot').src = img;
-  buildTaskGrids();
+  document.getElementById('mascot').src = KID_IMAGES[kid];
+  buildSlotsRow();
   refreshAll();
   window.scrollTo(0, 0);
 }
@@ -462,57 +679,97 @@ function goBack() {
   refreshProfileScreen();
 }
 
-function buildTaskGrids() {
-  const m = document.getElementById('morningGrid');
-  const e = document.getElementById('eveningGrid');
-  m.innerHTML = ''; e.innerHTML = '';
-  TASKS.morning.forEach(t => m.appendChild(makeTaskEl(t)));
-  TASKS.evening.forEach(t => e.appendChild(makeTaskEl(t)));
+function buildSlotsRow() {
+  const row = document.getElementById('slotsRow');
+  row.innerHTML = '';
+  SLOTS.forEach((slot, idx) => row.appendChild(makeSlotEl(slot, idx)));
 }
-function makeTaskEl(t) {
+function makeSlotEl(slot, idx) {
   const el = document.createElement('div');
-  el.className = 'task';
-  el.dataset.id = t.id;
+  el.className = 'slot';
+  el.dataset.idx = idx;
   el.innerHTML = `
-    <span class="icon-emoji">${t.icon}</span>
-    <span class="label">${t.label}</span>
-    <span class="light"><span class="star">⭐</span></span>
+    <button class="task-btn morning" data-id="${slot.morning.id}" data-moment="morning">
+      <span class="icon">${slot.morning.icon}</span>
+      <span class="label">${slot.morning.label}</span>
+    </button>
+    <span class="slot-light" role="button" tabindex="0"><span class="star">⭐</span></span>
+    <button class="task-btn evening" data-id="${slot.evening.id}" data-moment="evening">
+      <span class="icon">${slot.evening.icon}</span>
+      <span class="label">${slot.evening.label}</span>
+    </button>
   `;
-  el.addEventListener('click', () => toggleTask(t.id, el));
+  el.querySelectorAll('.task-btn').forEach(btn => {
+    btn.addEventListener('click', () => toggleTaskById(btn.dataset.id, btn));
+  });
+  el.querySelector('.slot-light').addEventListener('click', () => cycleLight(idx));
   return el;
+}
+
+function cycleLight(idx) {
+  const slot = SLOTS[idx];
+  const d = today();
+  if (!state[currentKid].tasks[d]) state[currentKid].tasks[d] = {};
+  const day = state[currentKid].tasks[d];
+  const morningOn = !!day[slot.morning.id];
+  const eveningOn = !!day[slot.evening.id];
+  let advance = false;
+  if (!morningOn && !eveningOn) {
+    day[slot.morning.id] = true;
+    advance = true;
+  } else if (morningOn && !eveningOn) {
+    day[slot.evening.id] = true;
+    advance = true;
+  } else {
+    // les deux allumées : on éteint tout (reset)
+    day[slot.morning.id] = false;
+    day[slot.evening.id] = false;
+  }
+  saveState();
+  if (advance) {
+    const lightEl = document.querySelector(`.slot[data-idx="${idx}"] .slot-light`);
+    if (lightEl) burstAt(lightEl);
+    bounceMascot();
+  }
+  syncSlots();
+  renderMilestone();
+  if (advance) setTimeout(checkRewards, 250);
 }
 
 function refreshAll() {
   document.getElementById('dateLabel').textContent = fmtDate(today());
-  syncTaskStates();
-  renderDayProgress();
-  renderWeek();
+  syncSlots();
   renderMilestone();
 }
 
-function syncTaskStates() {
+function syncSlots() {
   const day = dayKey(currentKid);
-  document.querySelectorAll('.task').forEach(el => {
-    const id = el.dataset.id;
-    el.classList.toggle('on', !!day[id]);
+  document.querySelectorAll('.slot').forEach(slotEl => {
+    const idx = parseInt(slotEl.dataset.idx, 10);
+    const slot = SLOTS[idx];
+    const morningOn = !!day[slot.morning.id];
+    const eveningOn = !!day[slot.evening.id];
+    slotEl.querySelector('.task-btn.morning').classList.toggle('done', morningOn);
+    slotEl.querySelector('.task-btn.evening').classList.toggle('done', eveningOn);
+    const lightEl = slotEl.querySelector('.slot-light');
+    lightEl.classList.toggle('half', (morningOn || eveningOn) && !(morningOn && eveningOn));
+    lightEl.classList.toggle('full', morningOn && eveningOn);
   });
 }
 
-function toggleTask(id, el) {
+function toggleTaskById(id, btn) {
   const d = today();
   if (!state[currentKid].tasks[d]) state[currentKid].tasks[d] = {};
   const wasOn = state[currentKid].tasks[d][id];
   state[currentKid].tasks[d][id] = !wasOn;
   saveState();
   if (!wasOn) {
-    el.classList.add('on');
-    burstAt(el);
+    burstAt(btn);
     bounceMascot();
-    setTimeout(() => { renderDayProgress(); renderWeek(); renderMilestone(); checkRewards(); }, 200);
-  } else {
-    el.classList.remove('on');
-    renderDayProgress(); renderWeek(); renderMilestone();
   }
+  syncSlots();
+  renderMilestone();
+  if (!wasOn) setTimeout(checkRewards, 250);
 }
 
 function burstAt(el) {
@@ -528,31 +785,6 @@ function burstAt(el) {
 function bounceMascot() {
   const m = document.getElementById('mascot');
   m.classList.remove('bounce'); void m.offsetWidth; m.classList.add('bounce');
-}
-
-function renderDayProgress() {
-  const c = dayTaskCount(currentKid, today());
-  document.getElementById('todayCount').textContent = c;
-  document.getElementById('todayTotal').textContent = ALL_TASKS.length;
-}
-
-function renderWeek() {
-  const grid = document.getElementById('weekGrid');
-  grid.innerHTML = '';
-  const monday = mondayOfWeek(todayDate());
-  const todayStr = today();
-  const dayNames = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday); d.setDate(d.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
-    const cell = document.createElement('div');
-    cell.className = 'day-cell';
-    if (key === todayStr) cell.classList.add('today');
-    if (isDayFull(currentKid, key)) cell.classList.add('full');
-    else if (isDayPartial(currentKid, key)) cell.classList.add('partial');
-    cell.innerHTML = `<span class="star-mark">★</span><span class="day-label">${dayNames[i]}</span>`;
-    grid.appendChild(cell);
-  }
 }
 
 function renderMilestone() {
@@ -574,29 +806,16 @@ function checkRewards() {
     if (!state[currentKid].rewardedKeys.includes(k)) {
       state[currentKid].rewardedKeys.push(k);
       saveState();
-      showReward('Jour réussi !', 'Tu as eu ton étoile du jour ⭐');
+      const animal = getDayAnimal(todayStr);
+      showAnimalReward(animal);
     }
-  }
-  // Récompense semaine : 5 jours full sur la semaine courante
-  const monday = mondayOfWeek(todayDate());
-  let fullDays = 0;
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(monday); d.setDate(d.getDate() + i);
-    if (isDayFull(currentKid, d.toISOString().slice(0, 10))) fullDays++;
-  }
-  const weekKey = 'week_' + monday.toISOString().slice(0, 10);
-  if (fullDays >= 5 && !state[currentKid].rewardedKeys.includes(weekKey)) {
-    state[currentKid].rewardedKeys.push(weekKey);
-    saveState();
-    setTimeout(() => {
-      showReward('Super semaine !', "5 étoiles cette semaine ! Tu as gagné une image personnalisée de ta peluche. Demande à Papa.");
-    }, 700);
   }
 }
 
-function showReward(title, text) {
-  document.getElementById('rewardTitle').textContent = title;
-  document.getElementById('rewardText').textContent = text;
+function showAnimalReward(animal) {
+  document.getElementById('rewardAnimal').textContent = animal.emoji;
+  document.getElementById('rewardTitle').textContent = '✨ Toutes les lumières ! ✨';
+  document.getElementById('rewardText').innerHTML = `Bravo, tu as découvert <b>${animal.name}</b> aujourd'hui !`;
   document.getElementById('rewardOverlay').classList.add('show');
 }
 function closeReward() { document.getElementById('rewardOverlay').classList.remove('show'); }
