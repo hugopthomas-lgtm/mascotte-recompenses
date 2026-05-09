@@ -318,7 +318,8 @@ const DAY_GOAL_RATIO = 0.7; // 70% des tâches faites = "jour réussi"
 const KIDS = ['theo', 'giulia'];
 const STORAGE_KEY = 'mascotte_v2';
 
-let state = loadState();
+let state;
+state = loadState();
 let currentKid = null;
 
 function loadState() {
