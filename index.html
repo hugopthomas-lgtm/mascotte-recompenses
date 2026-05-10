@@ -124,17 +124,19 @@ body {
   font-size: 144px; line-height: 1;
   color: #f7b733;
   filter: drop-shadow(0 4px 6px rgba(120, 80, 20, 0.5));
-  animation: starFadeIn 0.6s ease-out backwards;
-  animation-delay: calc(var(--i, 0) * 18ms);
+}
+.pile-star.falling {
+  animation: starFall 0.85s cubic-bezier(0.34, 1.20, 0.64, 1) backwards;
+  animation-delay: var(--fall-delay, 0ms);
+}
+@keyframes starFall {
+  from { transform: translateY(-110vh) rotate(0); opacity: 0; }
+  60%  { opacity: 1; }
 }
 @media (max-width: 760px) {
   .pile-star { font-size: 108px; filter: drop-shadow(0 3px 5px rgba(120, 80, 20, 0.5)); }
   .stars-jar-theo   { left: 0; right: 0; top: 0; bottom: 50vh; width: auto; }
   .stars-jar-giulia { left: 0; right: 0; top: 50vh; bottom: 0; width: auto; }
-}
-@keyframes starFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 /* Pretty separator */
@@ -172,23 +174,23 @@ body {
 .parent-btn:active { transform: scale(0.96); }
 
 /* Main */
-.main { display: none; position: relative; }
+.main { display: none; position: relative; --day-night-line: 50%; }
 .main .container { max-width: 1200px; }
 .main-bg {
   position: fixed; inset: 0; z-index: -2;
   background: linear-gradient(180deg,
     #cfe1f0 0%,
-    #e2eef7 30%,
-    #e9f1f8 48%,
-    #2d3a5e 52%,
-    #1b2241 80%,
+    #e2eef7 calc(var(--day-night-line) - 18%),
+    #e9f1f8 calc(var(--day-night-line) - 1%),
+    #2d3a5e calc(var(--day-night-line) + 1%),
+    #1b2241 calc(var(--day-night-line) + 28%),
     #11162e 100%
   );
 }
 .main-bg::after {
   content: '';
   position: absolute;
-  top: 50%; left: 0; right: 0; bottom: 0;
+  top: var(--day-night-line); left: 0; right: 0; bottom: 0;
   background-image:
     radial-gradient(circle at 12% 18%, rgba(255,255,255,0.85) 0.9px, transparent 1.6px),
     radial-gradient(circle at 38% 62%, rgba(255,255,255,0.7)  0.7px, transparent 1.4px),
@@ -272,15 +274,19 @@ body {
 .slot {
   display: flex; flex-direction: column; align-items: center; gap: 10px;
   padding: 6px 4px;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: background 0.2s;
 }
+.slot:active { transform: scale(0.98); }
 .task-btn {
-  background: transparent; border: 0; cursor: pointer; font-family: inherit;
+  background: transparent; border: 0; font-family: inherit;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 8px 4px; border-radius: 14px; width: 100%;
-  transition: background 0.2s, opacity 0.2s;
+  transition: opacity 0.2s;
   color: inherit;
+  pointer-events: none; /* le clic est géré au niveau du slot entier */
 }
-.task-btn:active { background: rgba(216, 139, 156, 0.1); transform: scale(0.96); }
 .task-btn .icon { font-size: 38px; line-height: 1; transition: filter 0.3s, opacity 0.3s; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18)); }
 .task-btn .label { font-size: 13px; text-align: center; line-height: 1.18; min-height: 30px; max-width: 110px; font-weight: 600; }
 .task-btn.morning .label { color: #3a4660; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
@@ -291,14 +297,14 @@ body {
 
 .slot-light {
   width: 72px; height: 72px; border-radius: 50%;
-  cursor: pointer;
+  pointer-events: none;
   background: radial-gradient(circle at 32% 28%, #faecc8 0%, #d6bd92 55%, #a4885f 100%);
   box-shadow: inset 0 -6px 10px rgba(0,0,0,0.18), inset 0 3px 5px rgba(255,255,255,0.6), 0 4px 8px var(--shadow);
   display: flex; align-items: center; justify-content: center;
   position: relative;
   transition: box-shadow 0.4s, background 0.4s, transform 0.15s;
 }
-.slot-light:active { transform: scale(0.92); }
+.slot:active .slot-light { transform: scale(0.92); }
 .slot-light::before {
   content: ''; position: absolute; inset: 8px; border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0) 50%);
@@ -555,7 +561,7 @@ function getDayAnimal(dateStr) {
 const KIDS = ['theo', 'giulia'];
 const KID_NAMES = { theo: 'Théodore', giulia: 'Giulia' };
 const KID_IMAGES = { theo: 'theo.jpg', giulia: 'giulia.jpg' };
-const STORAGE_KEY = 'mascotte_v3';
+const STORAGE_KEY = 'mascotte_v4';
 
 let state;
 state = loadState();
@@ -566,12 +572,16 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.theo && s.giulia) return s;
+      if (s && s.theo && s.giulia) {
+        if (!s.lastSeenStars) s.lastSeenStars = { theo: 0, giulia: 0 };
+        return s;
+      }
     }
   } catch (e) {}
   return {
     theo:   { tasks: {}, startDate: todayISO(0), rewardedKeys: [] },
     giulia: { tasks: {}, startDate: todayISO(0), rewardedKeys: [] },
+    lastSeenStars: { theo: 0, giulia: 0 },
     simOffset: 0
   };
 }
@@ -597,19 +607,26 @@ function fmtDate(iso) {
 
 function dayKey(kid) { return state[kid].tasks[today()] || {}; }
 
-function dayTaskCount(kid, dateStr) {
+function lightsOnForDay(kid, dateStr) {
   const day = state[kid].tasks[dateStr];
   if (!day) return 0;
-  return Object.values(day).filter(v => v).length;
+  let n = 0;
+  for (let i = 0; i < SLOTS.length; i++) if (day[i]) n++;
+  return n;
 }
-function isDayFull(kid, dateStr)    { return dayTaskCount(kid, dateStr) >= DAY_GOAL_COUNT; }
+function isDayFull(kid, dateStr) { return lightsOnForDay(kid, dateStr) >= SLOTS.length; }
+function totalStars(kid) {
+  let n = 0;
+  Object.keys(state[kid].tasks).forEach(d => { n += lightsOnForDay(kid, d); });
+  return n;
+}
 function totalSuccessfulDays(kid) {
   let n = 0;
   Object.keys(state[kid].tasks).forEach(d => { if (isDayFull(kid, d)) n++; });
   return n;
 }
 
-function renderStarsJar(elId, count, side) {
+function renderStarsJar(elId, count, side, lastSeen) {
   const el = document.getElementById(elId);
   el.innerHTML = '';
   if (count === 0) return;
@@ -621,6 +638,7 @@ function renderStarsJar(elId, count, side) {
   const rowH = baseSize * 0.55;
   const padding = baseSize * 0.45; // assez d'air pour que la rotation ne déborde pas
   const cols = Math.max(1, Math.floor((w - padding * 2 - baseSize * 0.4) / colSpace));
+  const safeLastSeen = (typeof lastSeen === 'number') ? lastSeen : count;
   for (let i = 0; i < count; i++) {
     const s = document.createElement('span');
     s.className = 'pile-star';
@@ -638,26 +656,42 @@ function renderStarsJar(elId, count, side) {
     s.style.bottom = (padding + row * rowH + jitterY) + 'px';
     s.style.transform = `rotate(${rot}deg) scale(${scale})`;
     s.style.zIndex = i;
-    s.style.setProperty('--i', i);
+    if (i >= safeLastSeen) {
+      s.classList.add('falling');
+      s.style.setProperty('--fall-delay', ((i - safeLastSeen) * 70) + 'ms');
+    }
     el.appendChild(s);
   }
 }
 
 function refreshProfileScreen() {
   const sideMap = { theo: 'left', giulia: 'right' };
+  if (!state.lastSeenStars) {
+    // Première initialisation: pas d'animation pour les étoiles déjà acquises
+    state.lastSeenStars = { theo: totalStars('theo'), giulia: totalStars('giulia') };
+    saveState();
+  }
+  let needsSave = false;
   KIDS.forEach(k => {
-    const n = totalSuccessfulDays(k);
+    const current = totalStars(k);
+    const lastSeen = state.lastSeenStars[k] || 0;
     const cap = k === 'theo' ? 'Theo' : 'Giulia';
-    document.getElementById('pts' + cap).textContent = n;
-    renderStarsJar('jar' + cap, n, sideMap[k]);
+    document.getElementById('pts' + cap).textContent = current;
+    renderStarsJar('jar' + cap, current, sideMap[k], lastSeen);
+    if (state.lastSeenStars[k] !== current) {
+      state.lastSeenStars[k] = current;
+      needsSave = true;
+    }
   });
+  if (needsSave) saveState();
 }
 
 let _resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
-    if (!currentKid) refreshProfileScreen();
+    if (currentKid) adjustDayNightLine();
+    else refreshProfileScreen();
   }, 120);
 });
 
@@ -670,6 +704,18 @@ function selectKid(kid) {
   buildSlotsRow();
   refreshAll();
   window.scrollTo(0, 0);
+  requestAnimationFrame(() => requestAnimationFrame(adjustDayNightLine));
+}
+
+function adjustDayNightLine() {
+  const main = document.getElementById('mainScreen');
+  if (!main || main.style.display === 'none' || main.style.display === '') return;
+  const slots = document.querySelector('.slots-row');
+  if (!slots) return;
+  const rect = slots.getBoundingClientRect();
+  const center = rect.top + rect.height / 2;
+  const pct = Math.max(20, Math.min(80, (center / window.innerHeight) * 100));
+  main.style.setProperty('--day-night-line', pct.toFixed(2) + '%');
 }
 
 function goBack() {
@@ -689,51 +735,35 @@ function makeSlotEl(slot, idx) {
   el.className = 'slot';
   el.dataset.idx = idx;
   el.innerHTML = `
-    <button class="task-btn morning" data-id="${slot.morning.id}" data-moment="morning">
+    <div class="task-btn morning">
       <span class="icon">${slot.morning.icon}</span>
       <span class="label">${slot.morning.label}</span>
-    </button>
+    </div>
     <span class="slot-light" role="button" tabindex="0"><span class="star">⭐</span></span>
-    <button class="task-btn evening" data-id="${slot.evening.id}" data-moment="evening">
+    <div class="task-btn evening">
       <span class="icon">${slot.evening.icon}</span>
       <span class="label">${slot.evening.label}</span>
-    </button>
+    </div>
   `;
-  el.querySelectorAll('.task-btn').forEach(btn => {
-    btn.addEventListener('click', () => toggleTaskById(btn.dataset.id, btn));
-  });
-  el.querySelector('.slot-light').addEventListener('click', () => cycleLight(idx));
+  el.addEventListener('click', () => toggleLight(idx));
   return el;
 }
 
-function cycleLight(idx) {
-  const slot = SLOTS[idx];
+function toggleLight(idx) {
   const d = today();
   if (!state[currentKid].tasks[d]) state[currentKid].tasks[d] = {};
   const day = state[currentKid].tasks[d];
-  const morningOn = !!day[slot.morning.id];
-  const eveningOn = !!day[slot.evening.id];
-  let advance = false;
-  if (!morningOn && !eveningOn) {
-    day[slot.morning.id] = true;
-    advance = true;
-  } else if (morningOn && !eveningOn) {
-    day[slot.evening.id] = true;
-    advance = true;
-  } else {
-    // les deux allumées : on éteint tout (reset)
-    day[slot.morning.id] = false;
-    day[slot.evening.id] = false;
-  }
+  const wasOn = !!day[idx];
+  day[idx] = !wasOn;
   saveState();
-  if (advance) {
+  if (!wasOn) {
     const lightEl = document.querySelector(`.slot[data-idx="${idx}"] .slot-light`);
     if (lightEl) burstAt(lightEl);
     bounceMascot();
   }
   syncSlots();
   renderMilestone();
-  if (advance) setTimeout(checkRewards, 250);
+  if (!wasOn) setTimeout(checkRewards, 250);
 }
 
 function refreshAll() {
@@ -746,30 +776,13 @@ function syncSlots() {
   const day = dayKey(currentKid);
   document.querySelectorAll('.slot').forEach(slotEl => {
     const idx = parseInt(slotEl.dataset.idx, 10);
-    const slot = SLOTS[idx];
-    const morningOn = !!day[slot.morning.id];
-    const eveningOn = !!day[slot.evening.id];
-    slotEl.querySelector('.task-btn.morning').classList.toggle('done', morningOn);
-    slotEl.querySelector('.task-btn.evening').classList.toggle('done', eveningOn);
+    const on = !!day[idx];
+    slotEl.classList.toggle('on', on);
+    slotEl.querySelectorAll('.task-btn').forEach(btn => btn.classList.toggle('done', on));
     const lightEl = slotEl.querySelector('.slot-light');
-    lightEl.classList.toggle('half', (morningOn || eveningOn) && !(morningOn && eveningOn));
-    lightEl.classList.toggle('full', morningOn && eveningOn);
+    lightEl.classList.toggle('full', on);
+    lightEl.classList.remove('half');
   });
-}
-
-function toggleTaskById(id, btn) {
-  const d = today();
-  if (!state[currentKid].tasks[d]) state[currentKid].tasks[d] = {};
-  const wasOn = state[currentKid].tasks[d][id];
-  state[currentKid].tasks[d][id] = !wasOn;
-  saveState();
-  if (!wasOn) {
-    burstAt(btn);
-    bounceMascot();
-  }
-  syncSlots();
-  renderMilestone();
-  if (!wasOn) setTimeout(checkRewards, 250);
 }
 
 function burstAt(el) {
