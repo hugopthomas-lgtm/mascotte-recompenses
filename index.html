@@ -109,6 +109,28 @@ body {
 }
 .card-count .star-icon { margin-left: 2px; }
 
+.milestones-row {
+  display: flex; justify-content: center; gap: 6px;
+  margin-top: 10px;
+}
+.milestone-chest {
+  font-size: 28px; line-height: 1;
+  filter: grayscale(0.85) opacity(0.32);
+  transition: filter 0.4s;
+  position: relative;
+}
+.milestone-chest.unlocked {
+  filter: drop-shadow(0 2px 4px rgba(180, 100, 30, 0.5));
+}
+.milestone-chest .label {
+  position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; color: var(--text-faint); font-weight: 600;
+}
+.milestone-chest.unlocked .label { color: var(--gold-deep); }
+@media (max-width: 460px) {
+  .milestone-chest { font-size: 24px; }
+}
+
 /* Stars settled at the bottom of the page, like coins in a jar */
 .stars-jar {
   position: fixed;
@@ -174,23 +196,21 @@ body {
 .parent-btn:active { transform: scale(0.96); }
 
 /* Main */
-.main { display: none; position: relative; --day-night-line: 50%; }
+.main { display: none; position: relative; }
 .main .container { max-width: 1200px; }
 .main-bg {
   position: fixed; inset: 0; z-index: -2;
-  background: linear-gradient(180deg,
-    #cfe1f0 0%,
-    #e2eef7 calc(var(--day-night-line) - 18%),
-    #e9f1f8 calc(var(--day-night-line) - 1%),
-    #2d3a5e calc(var(--day-night-line) + 1%),
-    #1b2241 calc(var(--day-night-line) + 28%),
-    #11162e 100%
-  );
+  transition: background 0.6s ease;
+}
+.main.morning .main-bg {
+  background: linear-gradient(180deg, #c7dcec 0%, #e0eef7 35%, #f3ead0 100%);
+}
+.main.evening .main-bg {
+  background: linear-gradient(180deg, #25315a 0%, #161c3a 55%, #0a0d22 100%);
 }
 .main-bg::after {
   content: '';
-  position: absolute;
-  top: var(--day-night-line); left: 0; right: 0; bottom: 0;
+  position: absolute; inset: 0;
   background-image:
     radial-gradient(circle at 12% 18%, rgba(255,255,255,0.85) 0.9px, transparent 1.6px),
     radial-gradient(circle at 38% 62%, rgba(255,255,255,0.7)  0.7px, transparent 1.4px),
@@ -202,10 +222,15 @@ body {
     radial-gradient(circle at 95% 40%, rgba(255,255,255,0.85) 0.8px, transparent 1.6px);
   background-size: 130px 130px, 150px 150px, 100px 100px, 170px 170px, 110px 110px, 140px 140px, 105px 105px, 120px 120px;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.main.evening .main-bg::after {
+  opacity: 1;
   animation: twinkle 5s ease-in-out infinite alternate;
 }
 @keyframes twinkle {
-  from { opacity: 0.6; }
+  from { opacity: 0.7; }
   to   { opacity: 1; }
 }
 .main .container {
@@ -289,11 +314,15 @@ body {
 }
 .task-btn .icon { font-size: 38px; line-height: 1; transition: filter 0.3s, opacity 0.3s; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18)); }
 .task-btn .label { font-size: 13px; text-align: center; line-height: 1.18; min-height: 30px; max-width: 110px; font-weight: 600; }
-.task-btn.morning .label { color: #3a4660; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
-.task-btn.evening .label { color: #e0e8f4; text-shadow: 0 1px 2px rgba(0,0,0,0.4); }
-.task-btn.morning.done .label { color: #8593a8; text-decoration: line-through; }
-.task-btn.evening.done .label { color: #7e8ba5; text-decoration: line-through; }
+/* Couleurs des labels qui s'adaptent au thème jour ou nuit */
+.main.morning .task-btn .label { color: #3a4660; text-shadow: 0 1px 2px rgba(255,255,255,0.55); }
+.main.evening .task-btn .label { color: #e0e8f4; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.main.morning .task-btn.done .label { color: #8593a8; text-decoration: line-through; }
+.main.evening .task-btn.done .label { color: #8090a8; text-decoration: line-through; }
 .task-btn.done .icon { filter: grayscale(0.6) opacity(0.5); }
+/* Tâche du moment courant : pleinement visible. Tâche de l'autre demi-journée : estompée */
+.task-btn:not(.moment-active) { opacity: 0.35; }
+.task-btn.moment-active       { opacity: 1; }
 
 .slot-light {
   width: 72px; height: 72px; border-radius: 50%;
@@ -360,6 +389,60 @@ body {
 .modal .section-title { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
 .modal .btn-row { display: flex; gap: 8px; }
 .modal .btn-row button { flex: 1; }
+.timer-input {
+  flex: 1; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--pink-soft); background: var(--bg-soft);
+  font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+}
+
+/* Sablier visuel flottant en haut (visible home + écran enfant) */
+.timer-bar {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 90;
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(255, 250, 240, 0.94);
+  border: 2px solid rgba(216, 139, 156, 0.4);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 12px 20px 12px 14px;
+  box-shadow: 0 8px 24px rgba(60, 50, 40, 0.25);
+  transition: opacity 0.3s;
+  max-width: calc(100vw - 28px);
+}
+.timer-bar.evening-theme { background: rgba(40, 50, 80, 0.88); border-color: rgba(220, 200, 230, 0.35); }
+.timer-bar[hidden] { display: none !important; }
+.timer-disc-wrap { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
+.timer-disc {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: conic-gradient(
+    #e84a4a 0deg,
+    #e84a4a var(--remaining-deg, 360deg),
+    #f5ead2 var(--remaining-deg, 360deg),
+    #f5ead2 360deg
+  );
+  border: 3px solid #c4a888;
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,0.22), 0 3px 6px rgba(0,0,0,0.15);
+}
+.timer-time {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Caveat', cursive; font-weight: 700;
+  font-size: 30px; color: #2c1f1a;
+  pointer-events: none;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+}
+.timer-msg {
+  font-family: 'Caveat', cursive; font-weight: 700;
+  font-size: 30px; line-height: 1.1;
+  color: var(--text);
+}
+.timer-bar.evening-theme .timer-msg { color: #e8eef8; }
+.timer-bar.evening-theme .timer-time { color: #2c1f1a; }
+.timer-disc.ending { animation: timerPulse 0.6s ease-in-out infinite alternate; }
+@keyframes timerPulse {
+  from { transform: scale(1); box-shadow: inset 0 -4px 8px rgba(0,0,0,0.22), 0 3px 6px rgba(232,74,74,0.3); }
+  to   { transform: scale(1.06); box-shadow: inset 0 -4px 8px rgba(0,0,0,0.22), 0 6px 18px rgba(232,74,74,0.7); }
+}
 
 /* Reward */
 .reward-overlay { display: none; position: fixed; inset: 0; background: radial-gradient(circle at 50% 40%, rgba(255,228,150,0.95), rgba(245,235,215,0.97)); z-index: 300; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
@@ -392,6 +475,13 @@ body {
 </style>
 </head>
 <body>
+<div class="timer-bar" id="timerBar" hidden>
+  <div class="timer-disc-wrap">
+    <div class="timer-disc" id="timerDisc"></div>
+    <div class="timer-time" id="timerTime">0:00</div>
+  </div>
+  <div class="timer-msg" id="timerMsg">Il reste du temps</div>
+</div>
 <div class="container">
 
   <!-- Profile select -->
@@ -407,6 +497,7 @@ body {
           <div class="pic-wrap"><img src="theo.jpg" alt="Théodore"></div>
           <h2>·Théodore·</h2>
           <div class="card-count"><span id="ptsTheo">0</span><span class="star-icon">★</span></div>
+          <div class="milestones-row" id="milestonesTheo"></div>
         </div>
       </div>
       <div class="zone-sep">
@@ -419,6 +510,7 @@ body {
           <div class="pic-wrap"><img src="giulia.jpg" alt="Giulia"></div>
           <h2>·Giulia·</h2>
           <div class="card-count"><span id="ptsGiulia">0</span><span class="star-icon">★</span></div>
+          <div class="milestones-row" id="milestonesGiulia"></div>
         </div>
       </div>
     </div>
@@ -436,7 +528,7 @@ body {
       </div>
 
       <div class="day-bar">
-        <span>Aujourd'hui</span>
+        <span>Aujourd'hui · <span id="momentLabel">matin</span> <span id="momentEmoji">☀️</span></span>
         <span class="date" id="dateLabel"></span>
       </div>
 
@@ -454,8 +546,8 @@ body {
 
     <div class="main-bottom">
       <div class="milestone">
-        <div class="big" id="milestoneText">🎁 Cadeau dans <span id="daysLeft">180</span> jours</div>
-        <div><span id="totalDays">0</span> jours d'étoiles déjà</div>
+        <div class="big" id="milestoneText">🎁 Cadeau dans <span id="daysLeft">180</span> étoiles</div>
+        <div><span id="totalDays">0</span> étoiles déjà gagnées</div>
       </div>
     </div>
   </div>
@@ -474,6 +566,33 @@ body {
         <button class="test" onclick="advanceDay(7)">+7 jours ⏩</button>
       </div>
       <button class="neutral" onclick="resetSimDate()">Revenir à aujourd'hui</button>
+    </div>
+    <div class="section">
+      <div class="section-title">Sablier (chrono visuel)</div>
+      <div id="timerInactive">
+        <div class="btn-row" style="margin-bottom: 8px;">
+          <button class="test" onclick="startTimer(3)">3 min</button>
+          <button class="test" onclick="startTimer(5)">5 min</button>
+          <button class="test" onclick="startTimer(10)">10 min</button>
+          <button class="test" onclick="startTimer(15)">15 min</button>
+        </div>
+        <div class="btn-row">
+          <input type="number" id="customTimerMinutes" min="1" max="120" placeholder="autre" class="timer-input">
+          <button class="test" onclick="startTimerCustom()">Lancer</button>
+        </div>
+      </div>
+      <div id="timerActiveBlock" hidden>
+        <div class="row"><strong>Sablier en cours</strong><span id="timerActiveText" style="font-family:'Caveat',cursive;font-size:22px;color:var(--pink-deep)">--</span></div>
+        <button class="danger" onclick="stopTimer()">Arrêter le sablier</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Forcer le moment de la journée</div>
+      <div class="btn-row">
+        <button class="test" onclick="setSimMoment('morning')">☀️ Matin</button>
+        <button class="test" onclick="setSimMoment('evening')">🌙 Soir</button>
+      </div>
+      <button class="neutral" onclick="setSimMoment(null)">Selon l'heure</button>
     </div>
     <div class="section">
       <div class="section-title">Reset</div>
@@ -502,7 +621,7 @@ const SLOTS = [
   { morning: { id: 'dents_m',  icon: '🪥', label: "Brosser les dents" },
     evening: { id: 'dents_s',  icon: '🪥', label: "Brosser les dents" } },
   { morning: { id: 'petitdej', icon: '🥣', label: "Petit déj" },
-    evening: { id: 'bain',     icon: '🛁', label: "Bain" } },
+    evening: { id: 'noTV',     icon: '📺', label: "Éteindre les dessins animés" } },
   { morning: { id: 'bonjour',  icon: '👋', label: "Dire bonjour" },
     evening: { id: 'pyjama',   icon: '🌙', label: "Pyjama" } },
   { morning: { id: 'ecole',    icon: '🎒', label: "Aller à l'école" },
@@ -553,15 +672,18 @@ const ANIMALS = [
   { emoji: '🐵', name: 'le Singe' },
   { emoji: '🦥', name: 'le Paresseux' }
 ];
-function getDayAnimal(dateStr) {
+function getMomentAnimal(dateStr, kid, moment) {
   let h = 0;
   for (let i = 0; i < dateStr.length; i++) h = ((h * 31) + dateStr.charCodeAt(i)) >>> 0;
-  return ANIMALS[h % ANIMALS.length];
+  const baseIdx = h % ANIMALS.length;
+  // 4 animaux différents par jour (theo matin, theo soir, giulia matin, giulia soir)
+  const offsets = { theo: { morning: 0, evening: 10 }, giulia: { morning: 20, evening: 30 } };
+  return ANIMALS[(baseIdx + offsets[kid][moment]) % ANIMALS.length];
 }
 const KIDS = ['theo', 'giulia'];
 const KID_NAMES = { theo: 'Théodore', giulia: 'Giulia' };
 const KID_IMAGES = { theo: 'theo.jpg', giulia: 'giulia.jpg' };
-const STORAGE_KEY = 'mascotte_v4';
+const STORAGE_KEY = 'mascotte_v5';
 
 let state;
 state = loadState();
@@ -574,6 +696,8 @@ function loadState() {
       const s = JSON.parse(raw);
       if (s && s.theo && s.giulia) {
         if (!s.lastSeenStars) s.lastSeenStars = { theo: 0, giulia: 0 };
+        if (!s.simMoment) s.simMoment = null;
+        if (!('timer' in s)) s.timer = null;
         return s;
       }
     }
@@ -582,8 +706,15 @@ function loadState() {
     theo:   { tasks: {}, startDate: todayISO(0), rewardedKeys: [] },
     giulia: { tasks: {}, startDate: todayISO(0), rewardedKeys: [] },
     lastSeenStars: { theo: 0, giulia: 0 },
-    simOffset: 0
+    simOffset: 0,
+    simMoment: null,
+    timer: null
   };
+}
+
+function currentMoment() {
+  if (state && state.simMoment) return state.simMoment;
+  return new Date().getHours() < 12 ? 'morning' : 'evening';
 }
 function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function todayISO(forceOffset) {
@@ -605,16 +736,24 @@ function fmtDate(iso) {
   return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
 }
 
-function dayKey(kid) { return state[kid].tasks[today()] || {}; }
-
-function lightsOnForDay(kid, dateStr) {
+function getMomentState(kid, dateStr, moment) {
   const day = state[kid].tasks[dateStr];
-  if (!day) return 0;
+  if (!day) return {};
+  // moment = 'morning' ou 'evening'
+  return day[moment] || {};
+}
+
+function lightsOnForMoment(kid, dateStr, moment) {
+  const m = getMomentState(kid, dateStr, moment);
   let n = 0;
-  for (let i = 0; i < SLOTS.length; i++) if (day[i]) n++;
+  for (let i = 0; i < SLOTS.length; i++) if (m[i]) n++;
   return n;
 }
-function isDayFull(kid, dateStr) { return lightsOnForDay(kid, dateStr) >= SLOTS.length; }
+function lightsOnForDay(kid, dateStr) {
+  return lightsOnForMoment(kid, dateStr, 'morning') + lightsOnForMoment(kid, dateStr, 'evening');
+}
+function momentFull(kid, dateStr, moment) { return lightsOnForMoment(kid, dateStr, moment) >= SLOTS.length; }
+function isDayFull(kid, dateStr) { return momentFull(kid, dateStr, 'morning') && momentFull(kid, dateStr, 'evening'); }
 function totalStars(kid) {
   let n = 0;
   Object.keys(state[kid].tasks).forEach(d => { n += lightsOnForDay(kid, d); });
@@ -664,10 +803,23 @@ function renderStarsJar(elId, count, side, lastSeen) {
   }
 }
 
+const MILESTONES = [30, 60, 90, 120, 150, 180];
+
+function renderMilestones(elId, count) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  MILESTONES.forEach(threshold => {
+    const span = document.createElement('span');
+    span.className = 'milestone-chest';
+    if (count >= threshold) span.classList.add('unlocked');
+    span.innerHTML = `🎁<span class="label">${threshold}</span>`;
+    el.appendChild(span);
+  });
+}
+
 function refreshProfileScreen() {
   const sideMap = { theo: 'left', giulia: 'right' };
   if (!state.lastSeenStars) {
-    // Première initialisation: pas d'animation pour les étoiles déjà acquises
     state.lastSeenStars = { theo: totalStars('theo'), giulia: totalStars('giulia') };
     saveState();
   }
@@ -678,6 +830,7 @@ function refreshProfileScreen() {
     const cap = k === 'theo' ? 'Theo' : 'Giulia';
     document.getElementById('pts' + cap).textContent = current;
     renderStarsJar('jar' + cap, current, sideMap[k], lastSeen);
+    renderMilestones('milestones' + cap, current);
     if (state.lastSeenStars[k] !== current) {
       state.lastSeenStars[k] = current;
       needsSave = true;
@@ -690,9 +843,14 @@ let _resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(_resizeTimer);
   _resizeTimer = setTimeout(() => {
-    if (currentKid) adjustDayNightLine();
-    else refreshProfileScreen();
+    if (!currentKid) refreshProfileScreen();
   }, 120);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (currentKid) refreshAll();
+    else refreshProfileScreen();
+  }
 });
 
 function selectKid(kid) {
@@ -703,19 +861,8 @@ function selectKid(kid) {
   document.getElementById('mascot').src = KID_IMAGES[kid];
   buildSlotsRow();
   refreshAll();
+  ensureTimerTick();
   window.scrollTo(0, 0);
-  requestAnimationFrame(() => requestAnimationFrame(adjustDayNightLine));
-}
-
-function adjustDayNightLine() {
-  const main = document.getElementById('mainScreen');
-  if (!main || main.style.display === 'none' || main.style.display === '') return;
-  const slots = document.querySelector('.slots-row');
-  if (!slots) return;
-  const rect = slots.getBoundingClientRect();
-  const center = rect.top + rect.height / 2;
-  const pct = Math.max(20, Math.min(80, (center / window.innerHeight) * 100));
-  main.style.setProperty('--day-night-line', pct.toFixed(2) + '%');
 }
 
 function goBack() {
@@ -751,10 +898,12 @@ function makeSlotEl(slot, idx) {
 
 function toggleLight(idx) {
   const d = today();
+  const m = currentMoment();
   if (!state[currentKid].tasks[d]) state[currentKid].tasks[d] = {};
-  const day = state[currentKid].tasks[d];
-  const wasOn = !!day[idx];
-  day[idx] = !wasOn;
+  if (!state[currentKid].tasks[d][m]) state[currentKid].tasks[d][m] = {};
+  const moment = state[currentKid].tasks[d][m];
+  const wasOn = !!moment[idx];
+  moment[idx] = !wasOn;
   saveState();
   if (!wasOn) {
     const lightEl = document.querySelector(`.slot[data-idx="${idx}"] .slot-light`);
@@ -768,17 +917,28 @@ function toggleLight(idx) {
 
 function refreshAll() {
   document.getElementById('dateLabel').textContent = fmtDate(today());
+  const m = currentMoment();
+  document.getElementById('momentLabel').textContent = m === 'morning' ? 'matin' : 'soir';
+  document.getElementById('momentEmoji').textContent = m === 'morning' ? '☀️' : '🌙';
+  const main = document.getElementById('mainScreen');
+  main.classList.toggle('morning', m === 'morning');
+  main.classList.toggle('evening', m === 'evening');
   syncSlots();
   renderMilestone();
 }
 
 function syncSlots() {
-  const day = dayKey(currentKid);
+  const m = currentMoment();
+  const moment = getMomentState(currentKid, today(), m);
+  const isMorning = (m === 'morning');
   document.querySelectorAll('.slot').forEach(slotEl => {
     const idx = parseInt(slotEl.dataset.idx, 10);
-    const on = !!day[idx];
+    const on = !!moment[idx];
     slotEl.classList.toggle('on', on);
-    slotEl.querySelectorAll('.task-btn').forEach(btn => btn.classList.toggle('done', on));
+    slotEl.querySelector('.task-btn.morning').classList.toggle('moment-active', isMorning);
+    slotEl.querySelector('.task-btn.evening').classList.toggle('moment-active', !isMorning);
+    slotEl.querySelector('.task-btn.morning').classList.toggle('done', isMorning && on);
+    slotEl.querySelector('.task-btn.evening').classList.toggle('done', !isMorning && on);
     const lightEl = slotEl.querySelector('.slot-light');
     lightEl.classList.toggle('full', on);
     lightEl.classList.remove('half');
@@ -801,34 +961,36 @@ function bounceMascot() {
 }
 
 function renderMilestone() {
-  const startDate = new Date(state[currentKid].startDate);
-  const daysSince = Math.floor((todayDate() - startDate) / (1000 * 60 * 60 * 24));
-  const daysLeft = Math.max(0, 180 - daysSince);
-  document.getElementById('totalDays').textContent = totalSuccessfulDays(currentKid);
-  if (daysLeft === 0) {
+  const stars = totalStars(currentKid);
+  const target = 180;
+  const left = Math.max(0, target - stars);
+  document.getElementById('totalDays').textContent = stars;
+  if (left === 0) {
     document.getElementById('milestoneText').innerHTML = '🎁 GROS CADEAU DÉBLOQUÉ ! 🎁';
   } else {
-    document.getElementById('milestoneText').innerHTML = '🎁 Cadeau dans <span id="daysLeft">' + daysLeft + '</span> jours';
+    document.getElementById('milestoneText').innerHTML = '🎁 Cadeau dans <span id="daysLeft">' + left + '</span> étoiles';
   }
 }
 
 function checkRewards() {
   const todayStr = today();
-  if (isDayFull(currentKid, todayStr)) {
-    const k = 'day_' + todayStr;
-    if (!state[currentKid].rewardedKeys.includes(k)) {
-      state[currentKid].rewardedKeys.push(k);
+  const m = currentMoment();
+  if (momentFull(currentKid, todayStr, m)) {
+    const key = m + '_' + todayStr;
+    if (!state[currentKid].rewardedKeys.includes(key)) {
+      state[currentKid].rewardedKeys.push(key);
       saveState();
-      const animal = getDayAnimal(todayStr);
-      showAnimalReward(animal);
+      const animal = getMomentAnimal(todayStr, currentKid, m);
+      showAnimalReward(animal, m);
     }
   }
 }
 
-function showAnimalReward(animal) {
+function showAnimalReward(animal, moment) {
+  const periodLabel = moment === 'morning' ? 'du matin' : 'du soir';
   document.getElementById('rewardAnimal').textContent = animal.emoji;
-  document.getElementById('rewardTitle').textContent = '✨ Toutes les lumières ! ✨';
-  document.getElementById('rewardText').innerHTML = `Bravo, tu as découvert <b>${animal.name}</b> aujourd'hui !`;
+  document.getElementById('rewardTitle').textContent = '✨ Toutes les lumières ' + periodLabel + ' ! ✨';
+  document.getElementById('rewardText').innerHTML = `Bravo, tu as découvert <b>${animal.name}</b> !`;
   document.getElementById('rewardOverlay').classList.add('show');
 }
 function closeReward() { document.getElementById('rewardOverlay').classList.remove('show'); }
@@ -837,17 +999,122 @@ function openParent() {
   const stats = document.getElementById('parentStats');
   let html = '';
   KIDS.forEach(k => {
-    const tot = totalSuccessfulDays(k);
-    const startDate = new Date(state[k].startDate);
-    const daysSince = Math.floor((todayDate() - startDate) / (1000 * 60 * 60 * 24));
-    const todayC = dayTaskCount(k, today());
-    html += `<div class="row"><strong>${KID_NAMES[k]}</strong><span>${todayC}/${ALL_TASKS.length} aujourd'hui · ${tot} jours ★ · ${daysSince}/180j</span></div>`;
+    const stars = totalStars(k);
+    const fullDays = totalSuccessfulDays(k);
+    const mC = lightsOnForMoment(k, today(), 'morning');
+    const eC = lightsOnForMoment(k, today(), 'evening');
+    html += `<div class="row"><strong>${KID_NAMES[k]}</strong><span>☀️ ${mC}/${SLOTS.length} · 🌙 ${eC}/${SLOTS.length} · ${stars}/180 ★ · ${fullDays} jours pleins</span></div>`;
   });
-  if (state.simOffset) {
-    html += `<div class="row" style="color:var(--gold-deep)"><strong>⏩ Mode test</strong><span>+${state.simOffset} jours</span></div>`;
+  if (state.simOffset || state.simMoment) {
+    let modeBits = [];
+    if (state.simOffset) modeBits.push('+' + state.simOffset + 'j');
+    if (state.simMoment) modeBits.push('forcé ' + (state.simMoment === 'morning' ? 'matin' : 'soir'));
+    html += `<div class="row" style="color:var(--gold-deep)"><strong>⏩ Mode test</strong><span>${modeBits.join(' · ')}</span></div>`;
   }
   stats.innerHTML = html;
   document.getElementById('parentModal').classList.add('show');
+  syncTimerModal();
+}
+
+function setSimMoment(m) {
+  state.simMoment = m;
+  saveState();
+  closeParent();
+  if (currentKid) refreshAll();
+}
+
+/* Sablier visuel */
+let _timerInterval = null;
+
+function startTimer(minutes) {
+  if (!minutes || minutes < 1) return;
+  state.timer = { startedAt: Date.now(), durationMs: Math.round(minutes * 60 * 1000) };
+  saveState();
+  closeParent();
+  ensureTimerTick();
+}
+function startTimerCustom() {
+  const input = document.getElementById('customTimerMinutes');
+  const v = parseInt(input.value, 10);
+  if (!v || v < 1) return;
+  startTimer(v);
+  input.value = '';
+}
+function stopTimer() {
+  state.timer = null;
+  saveState();
+  stopTimerTick();
+  const bar = document.getElementById('timerBar');
+  if (bar) bar.hidden = true;
+  if (document.getElementById('parentModal').classList.contains('show')) syncTimerModal();
+}
+function timerRemainingMs() {
+  if (!state.timer) return 0;
+  return Math.max(0, state.timer.durationMs - (Date.now() - state.timer.startedAt));
+}
+function ensureTimerTick() {
+  if (!state.timer) {
+    stopTimerTick();
+    const bar = document.getElementById('timerBar');
+    if (bar) bar.hidden = true;
+    return;
+  }
+  if (timerRemainingMs() <= 0) { onTimerEnd(); return; }
+  if (!_timerInterval) {
+    _timerInterval = setInterval(updateTimerUI, 300);
+  }
+  updateTimerUI();
+}
+function stopTimerTick() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+}
+function updateTimerUI() {
+  if (!state.timer) { stopTimerTick(); return; }
+  const remaining = timerRemainingMs();
+  if (remaining <= 0) { onTimerEnd(); return; }
+  const bar = document.getElementById('timerBar');
+  if (bar) {
+    bar.hidden = false;
+    const main = document.getElementById('mainScreen');
+    const isEvening = main && main.style.display !== 'none' && main.classList.contains('evening');
+    bar.classList.toggle('evening-theme', !!isEvening);
+    const pct = remaining / state.timer.durationMs;
+    bar.style.setProperty('--remaining-deg', (pct * 360).toFixed(1) + 'deg');
+    document.getElementById('timerTime').textContent = formatTimerMs(remaining);
+    const disc = document.getElementById('timerDisc');
+    disc.classList.toggle('ending', remaining <= 30000);
+    document.getElementById('timerMsg').textContent = remaining <= 30000
+      ? 'Plus que quelques secondes !'
+      : (remaining <= 60000 ? 'Dernière minute !' : 'Il reste du temps');
+  }
+  syncTimerModal();
+}
+function syncTimerModal() {
+  const inactive = document.getElementById('timerInactive');
+  const active = document.getElementById('timerActiveBlock');
+  if (!inactive || !active) return;
+  if (state.timer && timerRemainingMs() > 0) {
+    inactive.hidden = true;
+    active.hidden = false;
+    document.getElementById('timerActiveText').textContent = formatTimerMs(timerRemainingMs());
+  } else {
+    inactive.hidden = false;
+    active.hidden = true;
+  }
+}
+function onTimerEnd() {
+  state.timer = null;
+  saveState();
+  stopTimerTick();
+  const bar = document.getElementById('timerBar');
+  if (bar) bar.hidden = true;
+  syncTimerModal();
+}
+function formatTimerMs(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m + ':' + (s < 10 ? '0' : '') + s;
 }
 function closeParent() { document.getElementById('parentModal').classList.remove('show'); }
 
@@ -873,6 +1140,7 @@ function resetAll() {
 }
 
 refreshProfileScreen();
+ensureTimerTick();
 </script>
 </body>
 </html>
