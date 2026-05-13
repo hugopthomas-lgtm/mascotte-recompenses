@@ -366,6 +366,59 @@ body {
 .milestone { background: linear-gradient(135deg, var(--pink-soft), var(--bg-card)); border: 2px dashed var(--pink); border-radius: 18px; padding: 14px 18px; margin-bottom: 18px; text-align: center; font-size: 17px; color: var(--text-soft); }
 .milestone .big { color: var(--pink-deep); font-weight: 700; font-size: 21px; line-height: 1.2; margin-bottom: 3px; }
 
+/* Coffre des animaux */
+.collection-btn {
+  background: linear-gradient(135deg, #faecc8, #f0d68f);
+  border: 2px solid #c4a888;
+  color: #4a3a30;
+  border-radius: 18px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  width: 100%;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  font-family: inherit; font-size: 16px; font-weight: 600;
+  box-shadow: 0 4px 10px rgba(80, 50, 20, 0.18);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.collection-btn:active { transform: scale(0.98); }
+.collection-btn .chest-icon { font-size: 32px; line-height: 1; }
+.collection-btn .chest-text { flex: 1; text-align: left; font-family: 'Caveat', cursive; font-weight: 700; font-size: 24px; line-height: 1; }
+.collection-btn .chest-count { font-family: 'Caveat', cursive; font-weight: 700; font-size: 22px; color: var(--gold-deep); white-space: nowrap; }
+
+.collection-modal-content { max-width: 540px; }
+.collection-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.collection-stat { color: var(--text-soft); font-size: 14px; }
+.collection-stat b { color: var(--gold-deep); font-size: 18px; }
+.collection-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+@media (max-width: 540px) {
+  .collection-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+}
+.collection-card {
+  aspect-ratio: 1; border-radius: 12px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+  background: var(--bg-soft);
+  transition: transform 0.18s;
+}
+.collection-card.unlocked {
+  background: linear-gradient(135deg, #fff1a8, #ffd54a 55%, #f0a818);
+  box-shadow: 0 2px 6px rgba(180,140,30,0.4);
+}
+.collection-card.unlocked .ico { font-size: 30px; line-height: 1; }
+.collection-card.locked { opacity: 0.55; }
+.collection-card.locked .ico { font-size: 22px; color: var(--text-faint); }
+.collection-card .count {
+  position: absolute; bottom: 3px; right: 5px;
+  font-size: 9px; color: #6e4a10; font-weight: 800;
+  background: rgba(255,255,255,0.65); padding: 0 4px; border-radius: 6px;
+  line-height: 1.3;
+}
+.collection-card.unlocked:active { transform: scale(0.94); }
+
 /* Burst */
 .burst { position: fixed; pointer-events: none; z-index: 100; font-size: 36px; animation: burst 0.9s ease-out forwards; filter: drop-shadow(0 2px 4px var(--shadow)); }
 @keyframes burst {
@@ -545,6 +598,11 @@ body {
     </div>
 
     <div class="main-bottom">
+      <button class="collection-btn" onclick="openCollection()">
+        <span class="chest-icon">📔</span>
+        <span class="chest-text">Mon coffre des animaux</span>
+        <span class="chest-count"><span id="collectionCount">0</span>/<span id="collectionTotal">40</span></span>
+      </button>
       <div class="milestone">
         <div class="big" id="milestoneText">🎁 Cadeau dans <span id="daysLeft">180</span> étoiles</div>
         <div><span id="totalDays">0</span> étoiles déjà gagnées</div>
@@ -599,6 +657,18 @@ body {
       <button class="danger" onclick="resetAll()">Tout effacer</button>
     </div>
     <button class="neutral" onclick="closeParent()">Fermer</button>
+  </div>
+</div>
+
+<!-- Collection modal -->
+<div class="modal-bg" id="collectionModalBg">
+  <div class="modal collection-modal-content">
+    <div class="collection-head">
+      <h3 id="collectionTitle">📔 Mon coffre</h3>
+      <div class="collection-stat"><b id="collectionStatNum">0</b> / 40 animaux</div>
+    </div>
+    <div class="collection-grid" id="collectionGrid"></div>
+    <button class="neutral" onclick="closeCollection()">Fermer</button>
   </div>
 </div>
 
@@ -672,13 +742,45 @@ const ANIMALS = [
   { emoji: '🐵', name: 'le Singe' },
   { emoji: '🦥', name: 'le Paresseux' }
 ];
-function getMomentAnimal(dateStr, kid, moment) {
+function getMomentAnimalIdx(dateStr, kid, moment) {
   let h = 0;
   for (let i = 0; i < dateStr.length; i++) h = ((h * 31) + dateStr.charCodeAt(i)) >>> 0;
   const baseIdx = h % ANIMALS.length;
   // 4 animaux différents par jour (theo matin, theo soir, giulia matin, giulia soir)
   const offsets = { theo: { morning: 0, evening: 10 }, giulia: { morning: 20, evening: 30 } };
-  return ANIMALS[(baseIdx + offsets[kid][moment]) % ANIMALS.length];
+  return (baseIdx + offsets[kid][moment]) % ANIMALS.length;
+}
+function getMomentAnimal(dateStr, kid, moment) {
+  return ANIMALS[getMomentAnimalIdx(dateStr, kid, moment)];
+}
+
+function migrateCollection(kid) {
+  if (state[kid].collection) return;
+  state[kid].collection = {};
+  (state[kid].rewardedKeys || []).forEach(key => {
+    const parts = key.split('_');
+    if (parts.length !== 2) return;
+    const [moment, dateStr] = parts;
+    if (moment !== 'morning' && moment !== 'evening') return;
+    const idx = getMomentAnimalIdx(dateStr, kid, moment);
+    if (!state[kid].collection[idx]) {
+      state[kid].collection[idx] = { firstSeen: dateStr + '|' + moment, count: 0 };
+    }
+    state[kid].collection[idx].count++;
+  });
+}
+
+function recordAnimalUnlock(kid, dateStr, moment) {
+  if (!state[kid].collection) state[kid].collection = {};
+  const idx = getMomentAnimalIdx(dateStr, kid, moment);
+  if (!state[kid].collection[idx]) {
+    state[kid].collection[idx] = { firstSeen: dateStr + '|' + moment, count: 0 };
+  }
+  state[kid].collection[idx].count++;
+}
+
+function collectionSize(kid) {
+  return Object.keys(state[kid].collection || {}).length;
 }
 const KIDS = ['theo', 'giulia'];
 const KID_NAMES = { theo: 'Théodore', giulia: 'Giulia' };
@@ -703,8 +805,8 @@ function loadState() {
     }
   } catch (e) {}
   return {
-    theo:   { tasks: {}, startDate: todayISO(0), rewardedKeys: [] },
-    giulia: { tasks: {}, startDate: todayISO(0), rewardedKeys: [] },
+    theo:   { tasks: {}, startDate: todayISO(0), rewardedKeys: [], collection: {} },
+    giulia: { tasks: {}, startDate: todayISO(0), rewardedKeys: [], collection: {} },
     lastSeenStars: { theo: 0, giulia: 0 },
     simOffset: 0,
     simMoment: null,
@@ -970,6 +1072,35 @@ function renderMilestone() {
   } else {
     document.getElementById('milestoneText').innerHTML = '🎁 Cadeau dans <span id="daysLeft">' + left + '</span> étoiles';
   }
+  document.getElementById('collectionCount').textContent = collectionSize(currentKid);
+  document.getElementById('collectionTotal').textContent = ANIMALS.length;
+}
+
+function openCollection() {
+  if (!currentKid) return;
+  const coll = state[currentKid].collection || {};
+  document.getElementById('collectionTitle').textContent = '📔 Coffre de ' + KID_NAMES[currentKid];
+  document.getElementById('collectionStatNum').textContent = Object.keys(coll).length;
+  const grid = document.getElementById('collectionGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < ANIMALS.length; i++) {
+    const card = document.createElement('div');
+    const entry = coll[i];
+    if (entry) {
+      card.className = 'collection-card unlocked';
+      card.innerHTML = `<span class="ico">${ANIMALS[i].emoji}</span>` +
+        (entry.count > 1 ? `<span class="count">×${entry.count}</span>` : '');
+      card.title = ANIMALS[i].name;
+    } else {
+      card.className = 'collection-card locked';
+      card.innerHTML = `<span class="ico">?</span>`;
+    }
+    grid.appendChild(card);
+  }
+  document.getElementById('collectionModalBg').classList.add('show');
+}
+function closeCollection() {
+  document.getElementById('collectionModalBg').classList.remove('show');
 }
 
 function checkRewards() {
@@ -979,6 +1110,7 @@ function checkRewards() {
     const key = m + '_' + todayStr;
     if (!state[currentKid].rewardedKeys.includes(key)) {
       state[currentKid].rewardedKeys.push(key);
+      recordAnimalUnlock(currentKid, todayStr, m);
       saveState();
       const animal = getMomentAnimal(todayStr, currentKid, m);
       showAnimalReward(animal, m);
@@ -1139,6 +1271,8 @@ function resetAll() {
   goBack();
 }
 
+KIDS.forEach(migrateCollection);
+saveState();
 refreshProfileScreen();
 ensureTimerTick();
 </script>
