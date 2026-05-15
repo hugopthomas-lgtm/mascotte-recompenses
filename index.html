@@ -857,7 +857,7 @@ function lightsOnForDay(kid, dateStr) {
 function momentFull(kid, dateStr, moment) { return lightsOnForMoment(kid, dateStr, moment) >= SLOTS.length; }
 function isDayFull(kid, dateStr) { return momentFull(kid, dateStr, 'morning') && momentFull(kid, dateStr, 'evening'); }
 function totalStars(kid) {
-  let n = 0;
+  let n = state[kid].bonusStars || 0;
   Object.keys(state[kid].tasks).forEach(d => { n += lightsOnForDay(kid, d); });
   return n;
 }
@@ -1283,6 +1283,12 @@ if (!state.seededPhysical) {
   giveAnimal('theo', 16);    // 🦋 Papillon
   giveAnimal('giulia', 36);  // 🐰 Lapin
   state.seededPhysical = true;
+}
+// Seed étoiles déjà collectées physiquement (one-shot)
+if (!state.seededStars) {
+  state.theo.bonusStars = (state.theo.bonusStars || 0) + 18;
+  state.giulia.bonusStars = (state.giulia.bonusStars || 0) + 18;
+  state.seededStars = true;
 }
 saveState();
 refreshProfileScreen();
