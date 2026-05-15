@@ -1272,6 +1272,18 @@ function resetAll() {
 }
 
 KIDS.forEach(migrateCollection);
+// Seed manuel des animaux déjà offerts physiquement (one-shot)
+if (!state.seededPhysical) {
+  const giveAnimal = (kid, idx) => {
+    if (!state[kid].collection) state[kid].collection = {};
+    if (!state[kid].collection[idx]) {
+      state[kid].collection[idx] = { firstSeen: 'physical', count: 1 };
+    }
+  };
+  giveAnimal('theo', 16);    // 🦋 Papillon
+  giveAnimal('giulia', 36);  // 🐰 Lapin
+  state.seededPhysical = true;
+}
 saveState();
 refreshProfileScreen();
 ensureTimerTick();
