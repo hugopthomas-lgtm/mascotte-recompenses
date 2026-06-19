@@ -143,9 +143,9 @@ body {
 .stars-jar-giulia { right: 0; width: 50vw; }
 .pile-star {
   position: absolute;
-  font-size: 144px; line-height: 1;
+  font-size: 52px; line-height: 1;
   color: #f7b733;
-  filter: drop-shadow(0 4px 6px rgba(120, 80, 20, 0.5));
+  filter: drop-shadow(0 2px 4px rgba(120, 80, 20, 0.5));
 }
 .pile-star.falling {
   animation: starFall 0.85s cubic-bezier(0.34, 1.20, 0.64, 1) backwards;
@@ -156,7 +156,7 @@ body {
   60%  { opacity: 1; }
 }
 @media (max-width: 760px) {
-  .pile-star { font-size: 108px; filter: drop-shadow(0 3px 5px rgba(120, 80, 20, 0.5)); }
+  .pile-star { font-size: 40px; filter: drop-shadow(0 2px 4px rgba(120, 80, 20, 0.5)); }
   .stars-jar-theo   { left: 0; right: 0; top: 0; bottom: 50vh; width: auto; }
   .stars-jar-giulia { left: 0; right: 0; top: 50vh; bottom: 0; width: auto; }
 }
@@ -520,6 +520,28 @@ body {
 .reward-overlay button { background: var(--pink); color: white; font-weight: 700; border: none; padding: 14px 32px; border-radius: 16px; cursor: pointer; font-size: 17px; font-family: inherit; box-shadow: 0 6px 18px rgba(184,106,126,0.4); }
 .reward-overlay button:active { transform: scale(0.97); }
 
+/* Animal en grand quand on clique dans le coffre */
+.collection-card.unlocked { cursor: pointer; }
+.zoom-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(60, 45, 40, 0.82);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  z-index: 400; align-items: center; justify-content: center; flex-direction: column;
+  padding: 24px; cursor: pointer;
+}
+.zoom-overlay.show { display: flex; animation: fadeIn 0.25s; }
+.zoom-overlay .zoom-animal {
+  font-size: min(62vw, 320px); line-height: 1;
+  filter: drop-shadow(0 12px 26px rgba(0,0,0,0.4));
+  animation: rewardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.zoom-overlay .zoom-name {
+  font-family: 'Caveat', cursive; font-weight: 700; color: #fff;
+  font-size: 46px; line-height: 1; margin-top: 14px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+}
+.zoom-overlay .zoom-hint { color: rgba(255,255,255,0.75); font-size: 14px; margin-top: 20px; }
+
 @media (max-width: 380px) {
   .profile-card { width: 145px; }
   .profile-card .pic-wrap, .profile-card img { width: 110px; height: auto; max-height: 140px; }
@@ -678,6 +700,13 @@ body {
   <h2 id="rewardTitle">✨ Toutes les lumières ! ✨</h2>
   <p id="rewardText"></p>
   <button onclick="closeReward()">Génial !</button>
+</div>
+
+<!-- Animal en grand -->
+<div class="zoom-overlay" id="animalZoom" onclick="closeAnimalZoom()">
+  <div class="zoom-animal" id="zoomAnimal">🦁</div>
+  <div class="zoom-name" id="zoomName">le Lion</div>
+  <div class="zoom-hint">Touche pour fermer</div>
 </div>
 
 <script>
@@ -874,7 +903,7 @@ function renderStarsJar(elId, count, side, lastSeen) {
   const w = el.clientWidth;
   if (w === 0) return;
   const isMobile = window.matchMedia('(max-width: 760px)').matches;
-  const baseSize = isMobile ? 108 : 144;
+  const baseSize = isMobile ? 40 : 52;
   const colSpace = baseSize * 0.7;
   const rowH = baseSize * 0.55;
   const padding = baseSize * 0.45; // assez d'air pour que la rotation ne déborde pas
@@ -1091,6 +1120,7 @@ function openCollection() {
       card.innerHTML = `<span class="ico">${ANIMALS[i].emoji}</span>` +
         (entry.count > 1 ? `<span class="count">×${entry.count}</span>` : '');
       card.title = ANIMALS[i].name;
+      card.addEventListener('click', () => openAnimalZoom(i));
     } else {
       card.className = 'collection-card locked';
       card.innerHTML = `<span class="ico">?</span>`;
@@ -1102,6 +1132,18 @@ function openCollection() {
 function closeCollection() {
   document.getElementById('collectionModalBg').classList.remove('show');
 }
+
+function openAnimalZoom(idx) {
+  document.getElementById('zoomAnimal').textContent = ANIMALS[idx].emoji;
+  document.getElementById('zoomName').textContent = ANIMALS[idx].name;
+  document.getElementById('animalZoom').classList.add('show');
+}
+function closeAnimalZoom() {
+  document.getElementById('animalZoom').classList.remove('show');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAnimalZoom();
+});
 
 function checkRewards() {
   const todayStr = today();
