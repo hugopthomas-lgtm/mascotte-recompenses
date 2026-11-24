@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5ebd7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Mascotte Vittoria">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="../icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="../icons/icon-512.png">
+<link rel="apple-touch-icon" sizes="192x192" href="../icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Mascotte ★ Vittoria</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5ebd7;
+  --bg-soft: #fbf3e1;
+  --bg-card: #fff8e8;
+  --pink: #d88b9c;
+  --pink-deep: #b86a7e;
+  --pink-soft: #f5d4dc;
+  --gold: #ffc857;
+  --gold-glow: #ffe28a;
+  --gold-deep: #e89c1a;
+  --green: #7fb069;
+  --text: #5a4842;
+  --text-soft: #8a7670;
+  --text-faint: #b8a89e;
+  --shadow: rgba(120, 90, 60, 0.18);
+  --shadow-soft: rgba(120, 90, 60, 0.08);
+}
+html, body { height: 100%; }
+body {
+  font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.cursive { font-family: 'Caveat', cursive; }
+
+.container { max-width: 760px; margin: 0 auto; padding: 16px; }
+
+/* Profile select */
+:root {
+  --vittoria-bg: #e9d3e4;
+  --card-border: #e8d4a8;
+}
+
+/* Split-color full-page background, only on home screen */
+.profile-bg {
+  position: fixed; inset: 0; z-index: -2;
+  background: var(--vittoria-bg);
+}
+
+.profile-select { padding-top: 26px; text-align: center; min-height: 100vh; }
+.profile-select h1 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 58px; line-height: 1; margin-bottom: 4px; text-shadow: 0 1px 2px rgba(255,255,255,0.4); }
+.profile-select .sub { color: var(--text); font-size: 15px; margin-bottom: 22px; }
+
+.zones {
+  display: grid; grid-template-columns: 1fr;
+  align-items: start;
+  gap: 0;
+  margin-bottom: 22px;
+}
+.zone {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 8px 8px 16px;
+}
+
+.profile-card {
+  background: var(--bg-card);
+  border: 3px solid var(--card-border);
+  border-radius: 36px;
+  padding: 24px 22px 20px;
+  width: 100%; max-width: 324px;
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  box-shadow: 0 7px 20px rgba(60, 50, 40, 0.2);
+  text-align: center;
+}
+.profile-card:active { transform: scale(0.97); }
+.profile-card:hover { border-color: var(--pink); box-shadow: 0 11px 28px rgba(60, 50, 40, 0.28); }
+.profile-card .pic-wrap {
+  width: 270px; height: 338px; margin: 0 auto;
+  display: flex; align-items: flex-end; justify-content: center;
+}
+.profile-card img { width: 270px; height: auto; max-height: 338px; object-fit: contain; }
+.profile-card h2 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 54px; line-height: 1; margin-top: 10px; }
+
+/* Star count inside the card */
+.card-count {
+  margin-top: 7px;
+  font-family: 'Caveat', cursive; font-weight: 700;
+  font-size: 27px; line-height: 1;
+  color: var(--gold-deep);
+}
+.card-count .star-icon { margin-left: 2px; }
+
+.milestones-row {
+  display: flex; justify-content: center; gap: 6px;
+  margin-top: 10px;
+}
+.milestone-chest {
+  font-size: 28px; line-height: 1;
+  filter: grayscale(0.85) opacity(0.32);
+  transition: filter 0.4s;
+  position: relative;
+}
+.milestone-chest.unlocked {
+  filter: drop-shadow(0 2px 4px rgba(180, 100, 30, 0.5));
+}
+.milestone-chest .label {
+  position: absolute; bottom: -16px; left: 50%; transform: translateX(-50%);
+  font-size: 9px; color: var(--text-faint); font-weight: 600;
+}
+.milestone-chest.unlocked .label { color: var(--gold-deep); }
+@media (max-width: 460px) {
+  .milestone-chest { font-size: 24px; }
+}
+
+/* Stars settled at the bottom of the page, like coins in a jar */
+.stars-jar {
+  position: fixed;
+  top: 0; bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
+.stars-jar-vittoria { left: 0; right: 0; width: 100vw; }
+.pile-star {
+  position: absolute;
+  font-size: 52px; line-height: 1;
+  color: #f7b733;
+  filter: drop-shadow(0 2px 4px rgba(120, 80, 20, 0.5));
+}
+.pile-star.falling {
+  animation: starFall 0.85s cubic-bezier(0.34, 1.20, 0.64, 1) backwards;
+  animation-delay: var(--fall-delay, 0ms);
+}
+@keyframes starFall {
+  from { transform: translateY(-110vh) rotate(0); opacity: 0; }
+  60%  { opacity: 1; }
+}
+@media (max-width: 760px) {
+  .pile-star { font-size: 40px; filter: drop-shadow(0 2px 4px rgba(120, 80, 20, 0.5)); }
+  .stars-jar-vittoria { left: 0; right: 0; top: 0; bottom: 0; width: auto; }
+}
+
+/* Pretty separator */
+.zone-sep {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px 4px 0;
+  align-self: stretch;
+}
+.zone-sep .sep-line {
+  flex: 1;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.7) 80%, transparent);
+}
+.zone-sep .sep-heart {
+  font-size: 24px;
+  margin: 8px 0;
+  color: var(--pink);
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+}
+
+@media (max-width: 760px) {
+  .zones { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+  .zone-sep { flex-direction: row; padding: 6px 24px; align-self: auto; }
+  .zone-sep .sep-line { width: auto; height: 2px; flex: 1; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7) 20%, rgba(255,255,255,0.7) 80%, transparent); }
+  .zone-sep .sep-heart { margin: 0 10px; }
+}
+@media (max-width: 460px) {
+  .profile-card { padding: 20px 16px 16px; border-radius: 28px; max-width: 288px; }
+  .profile-card .pic-wrap { width: 216px; height: 270px; }
+  .profile-card img { width: 216px; max-height: 270px; }
+  .profile-card h2 { font-size: 45px; }
+}
+
+.parent-btn { background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(120, 90, 60, 0.3); color: var(--text); padding: 10px 18px; border-radius: 22px; font-size: 15px; cursor: pointer; font-family: inherit; margin-top: 4px; backdrop-filter: blur(4px); }
+.parent-btn:active { transform: scale(0.96); }
+
+/* Main */
+.main { display: none; position: relative; }
+.main .container { max-width: 1200px; }
+.main-bg {
+  position: fixed; inset: 0; z-index: -2;
+  transition: background 0.6s ease;
+}
+.main.morning .main-bg {
+  background: linear-gradient(180deg, #c7dcec 0%, #e0eef7 35%, #f3ead0 100%);
+}
+.main.evening .main-bg {
+  background: linear-gradient(180deg, #25315a 0%, #161c3a 55%, #0a0d22 100%);
+}
+.main-bg::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(255,255,255,0.85) 0.9px, transparent 1.6px),
+    radial-gradient(circle at 38% 62%, rgba(255,255,255,0.7)  0.7px, transparent 1.4px),
+    radial-gradient(circle at 65% 28%, rgba(255,255,255,0.9)  1px, transparent 1.8px),
+    radial-gradient(circle at 82% 78%, rgba(255,255,255,0.78) 0.8px, transparent 1.5px),
+    radial-gradient(circle at 25% 85%, rgba(255,255,255,0.8)  0.6px, transparent 1.2px),
+    radial-gradient(circle at 55% 15%, rgba(255,255,255,0.6)  0.7px, transparent 1.3px),
+    radial-gradient(circle at 5% 50%,  rgba(255,255,255,0.7)  0.6px, transparent 1.2px),
+    radial-gradient(circle at 95% 40%, rgba(255,255,255,0.85) 0.8px, transparent 1.6px);
+  background-size: 130px 130px, 150px 150px, 100px 100px, 170px 170px, 110px 110px, 140px 140px, 105px 105px, 120px 120px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.main.evening .main-bg::after {
+  opacity: 1;
+  animation: twinkle 5s ease-in-out infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity: 0.7; }
+  to   { opacity: 1; }
+}
+.main .container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-top: 14px;
+}
+.main-top    { flex-shrink: 0; }
+.main-center { margin: auto 0; flex-shrink: 0; }
+.main-bottom { flex-shrink: 0; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; }
+.icon-btn { background: var(--bg-card); border: 1.5px solid var(--pink-soft); color: var(--text-soft); width: 48px; height: 48px; border-radius: 50%; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.icon-btn:active { transform: scale(0.92); }
+.kid-name { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink); font-size: 54px; line-height: 1; }
+.kid-name .heart { color: var(--pink-soft); margin: 0 6px; }
+
+.day-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 17px; color: var(--text-soft);
+  margin-bottom: 14px; padding: 0 6px;
+}
+.day-bar .date { color: var(--pink); font-weight: 600; text-transform: capitalize; }
+
+/* Mascot */
+.mascot-zone { text-align: center; margin: 8px 0 18px; }
+.mascot-img {
+  width: 192px; height: auto; max-height: 256px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 14px var(--shadow));
+  transition: transform 0.3s;
+}
+.mascot-img.bounce { animation: bounce 0.7s; }
+@keyframes bounce {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  25% { transform: translateY(-10px) rotate(-4deg); }
+  50% { transform: translateY(-16px) rotate(0); }
+  75% { transform: translateY(-6px) rotate(4deg); }
+}
+
+/* Day progress */
+.day-progress {
+  background: var(--bg-card);
+  border: 1px solid var(--pink-soft);
+  border-radius: 20px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow-soft);
+}
+.day-progress .num { font-size: 24px; color: var(--gold-deep); font-weight: 700; line-height: 1; }
+.day-progress .num .total { color: var(--text-faint); font-weight: 600; }
+.day-progress .label { font-size: 12px; color: var(--text-soft); margin-top: 2px; }
+
+/* Slots row : 6 lumières avec tâche matin au-dessus, soir en dessous */
+.slots-wrap {
+  background: transparent;
+  padding: 6px 4px 10px;
+  margin-bottom: 14px;
+}
+.slots-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+@media (max-width: 600px) {
+  .slots-row { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+}
+
+.slot {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: 6px 4px;
+  cursor: pointer;
+  border-radius: 16px;
+  transition: background 0.2s;
+}
+.slot:active { transform: scale(0.98); }
+.task-btn {
+  background: transparent; border: 0; font-family: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 8px 4px; border-radius: 14px; width: 100%;
+  transition: opacity 0.2s;
+  color: inherit;
+  pointer-events: none; /* le clic est géré au niveau du slot entier */
+}
+.task-btn .icon { font-size: 38px; line-height: 1; transition: filter 0.3s, opacity 0.3s; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.18)); }
+.task-btn .label { font-size: 13px; text-align: center; line-height: 1.18; min-height: 30px; max-width: 110px; font-weight: 600; }
+/* Couleurs des labels qui s'adaptent au thème jour ou nuit */
+.main.morning .task-btn .label { color: #3a4660; text-shadow: 0 1px 2px rgba(255,255,255,0.55); }
+.main.evening .task-btn .label { color: #e0e8f4; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.main.morning .task-btn.done .label { color: #8593a8; text-decoration: line-through; }
+.main.evening .task-btn.done .label { color: #8090a8; text-decoration: line-through; }
+.task-btn.done .icon { filter: grayscale(0.6) opacity(0.5); }
+/* Tâche du moment courant : pleinement visible. Tâche de l'autre demi-journée : estompée */
+.task-btn:not(.moment-active) { opacity: 0.35; }
+.task-btn.moment-active       { opacity: 1; }
+
+.slot-light {
+  width: 72px; height: 72px; border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 32% 28%, #faecc8 0%, #d6bd92 55%, #a4885f 100%);
+  box-shadow: inset 0 -6px 10px rgba(0,0,0,0.18), inset 0 3px 5px rgba(255,255,255,0.6), 0 4px 8px var(--shadow);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  transition: box-shadow 0.4s, background 0.4s, transform 0.15s;
+}
+.slot:active .slot-light { transform: scale(0.92); }
+.slot-light::before {
+  content: ''; position: absolute; inset: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0) 50%);
+  pointer-events: none;
+}
+.slot-light.half {
+  background: radial-gradient(circle at 32% 28%, #fde9a9 0%, #ecc56d 55%, #c0852b 100%);
+  box-shadow: 0 0 14px rgba(255,213,74,0.45), inset 0 -3px 5px rgba(180,110,15,0.35), inset 0 2px 3px rgba(255,255,255,0.55);
+}
+.slot-light.full {
+  background: radial-gradient(circle at 32% 28%, #fffacc 0%, #ffd862 45%, #f0a818 100%);
+  box-shadow: 0 0 24px rgba(255,213,74,0.7), 0 0 44px rgba(255,213,74,0.32), inset 0 -3px 6px rgba(220,140,20,0.45), inset 0 2px 4px rgba(255,255,255,0.6);
+  animation: glow 2.4s ease-in-out infinite;
+}
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,213,74,0.6), 0 0 38px rgba(255,213,74,0.25), inset 0 -3px 6px rgba(220,140,20,0.45), inset 0 2px 4px rgba(255,255,255,0.6); }
+  50%      { box-shadow: 0 0 30px rgba(255,213,74,0.9), 0 0 60px rgba(255,213,74,0.42), inset 0 -3px 6px rgba(220,140,20,0.45), inset 0 2px 4px rgba(255,255,255,0.6); }
+}
+.slot-light .star {
+  font-size: 30px; line-height: 1;
+  opacity: 0; transform: scale(0) rotate(-180deg);
+  transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 1px 2px rgba(180,100,10,0.5));
+  position: relative; z-index: 1;
+}
+.slot-light.full .star { opacity: 1; transform: scale(1) rotate(0); }
+
+
+/* Milestone */
+.milestone { background: linear-gradient(135deg, var(--pink-soft), var(--bg-card)); border: 2px dashed var(--pink); border-radius: 18px; padding: 14px 18px; margin-bottom: 18px; text-align: center; font-size: 17px; color: var(--text-soft); }
+.milestone .big { color: var(--pink-deep); font-weight: 700; font-size: 21px; line-height: 1.2; margin-bottom: 3px; }
+
+/* Coffre des animaux */
+.collection-btn {
+  background: linear-gradient(135deg, #faecc8, #f0d68f);
+  border: 2px solid #c4a888;
+  color: #4a3a30;
+  border-radius: 18px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  width: 100%;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  font-family: inherit; font-size: 16px; font-weight: 600;
+  box-shadow: 0 4px 10px rgba(80, 50, 20, 0.18);
+  transition: transform 0.15s, box-shadow 0.2s;
+}
+.collection-btn:active { transform: scale(0.98); }
+.collection-btn .chest-icon { font-size: 32px; line-height: 1; }
+.collection-btn .chest-text { flex: 1; text-align: left; font-family: 'Caveat', cursive; font-weight: 700; font-size: 24px; line-height: 1; }
+.collection-btn .chest-count { font-family: 'Caveat', cursive; font-weight: 700; font-size: 22px; color: var(--gold-deep); white-space: nowrap; }
+
+.collection-modal-content { max-width: 540px; }
+.collection-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.collection-stat { color: var(--text-soft); font-size: 14px; }
+.collection-stat b { color: var(--gold-deep); font-size: 18px; }
+.collection-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+@media (max-width: 540px) {
+  .collection-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+}
+.collection-card {
+  aspect-ratio: 1; border-radius: 12px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  position: relative;
+  background: var(--bg-soft);
+  transition: transform 0.18s;
+}
+.collection-card.unlocked {
+  background: linear-gradient(135deg, #fff1a8, #ffd54a 55%, #f0a818);
+  box-shadow: 0 2px 6px rgba(180,140,30,0.4);
+}
+.collection-card.unlocked .ico { font-size: 30px; line-height: 1; }
+.collection-card.locked { opacity: 0.55; }
+.collection-card.locked .ico { font-size: 22px; color: var(--text-faint); }
+.collection-card .count {
+  position: absolute; bottom: 3px; right: 5px;
+  font-size: 9px; color: #6e4a10; font-weight: 800;
+  background: rgba(255,255,255,0.65); padding: 0 4px; border-radius: 6px;
+  line-height: 1.3;
+}
+.collection-card.unlocked:active { transform: scale(0.94); }
+
+/* Burst */
+.burst { position: fixed; pointer-events: none; z-index: 100; font-size: 36px; animation: burst 0.9s ease-out forwards; filter: drop-shadow(0 2px 4px var(--shadow)); }
+@keyframes burst {
+  0% { transform: scale(0.4) translateY(0); opacity: 1; }
+  100% { transform: scale(1.6) translateY(-90px); opacity: 0; }
+}
+
+/* Modal */
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(90,72,66,0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.modal-bg.show { display: flex; }
+.modal { background: var(--bg-card); border-radius: 24px; padding: 22px; max-width: 420px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(60,40,30,0.3); }
+.modal h3 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 30px; margin-bottom: 12px; line-height: 1; }
+.modal .row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--pink-soft); font-size: 13px; }
+.modal .row:last-child { border-bottom: 0; }
+.modal button { background: var(--pink); color: white; border: none; padding: 11px 16px; border-radius: 14px; cursor: pointer; margin-top: 12px; width: 100%; font-size: 14px; font-family: inherit; font-weight: 600; }
+.modal button:active { transform: scale(0.97); }
+.modal .danger { background: #d97070; }
+.modal .neutral { background: var(--bg-soft); color: var(--text-soft); border: 1px solid var(--text-faint); }
+.modal .test { background: var(--gold); color: var(--text); }
+.modal .section { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--pink-soft); }
+.modal .section-title { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600; }
+.modal .btn-row { display: flex; gap: 8px; }
+.modal .btn-row button { flex: 1; }
+.timer-input {
+  flex: 1; padding: 10px 12px; border-radius: 12px;
+  border: 1px solid var(--pink-soft); background: var(--bg-soft);
+  font-family: inherit; font-size: 14px; font-weight: 600; color: var(--text);
+}
+
+/* Sablier visuel flottant en haut (visible home + écran enfant) */
+.timer-bar {
+  position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
+  z-index: 90;
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(255, 250, 240, 0.94);
+  border: 2px solid rgba(216, 139, 156, 0.4);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 12px 20px 12px 14px;
+  box-shadow: 0 8px 24px rgba(60, 50, 40, 0.25);
+  transition: opacity 0.3s;
+  max-width: calc(100vw - 28px);
+}
+.timer-bar.evening-theme { background: rgba(40, 50, 80, 0.88); border-color: rgba(220, 200, 230, 0.35); }
+.timer-bar[hidden] { display: none !important; }
+.timer-disc-wrap { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
+.timer-disc {
+  width: 100%; height: 100%; border-radius: 50%;
+  background: conic-gradient(
+    #e84a4a 0deg,
+    #e84a4a var(--remaining-deg, 360deg),
+    #f5ead2 var(--remaining-deg, 360deg),
+    #f5ead2 360deg
+  );
+  border: 3px solid #c4a888;
+  box-shadow: inset 0 -4px 8px rgba(0,0,0,0.22), 0 3px 6px rgba(0,0,0,0.15);
+}
+.timer-time {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Caveat', cursive; font-weight: 700;
+  font-size: 30px; color: #2c1f1a;
+  pointer-events: none;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+}
+.timer-msg {
+  font-family: 'Caveat', cursive; font-weight: 700;
+  font-size: 30px; line-height: 1.1;
+  color: var(--text);
+}
+.timer-bar.evening-theme .timer-msg { color: #e8eef8; }
+.timer-bar.evening-theme .timer-time { color: #2c1f1a; }
+.timer-disc.ending { animation: timerPulse 0.6s ease-in-out infinite alternate; }
+@keyframes timerPulse {
+  from { transform: scale(1); box-shadow: inset 0 -4px 8px rgba(0,0,0,0.22), 0 3px 6px rgba(232,74,74,0.3); }
+  to   { transform: scale(1.06); box-shadow: inset 0 -4px 8px rgba(0,0,0,0.22), 0 6px 18px rgba(232,74,74,0.7); }
+}
+
+/* Reward */
+.reward-overlay { display: none; position: fixed; inset: 0; background: radial-gradient(circle at 50% 40%, rgba(255,228,150,0.95), rgba(245,235,215,0.97)); z-index: 300; align-items: center; justify-content: center; flex-direction: column; padding: 20px; }
+.reward-overlay.show { display: flex; animation: fadeIn 0.4s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.reward-overlay h2 { font-family: 'Caveat', cursive; font-weight: 700; color: var(--pink-deep); font-size: 56px; line-height: 1; margin-bottom: 14px; text-align: center; }
+.reward-overlay p { color: var(--text); text-align: center; max-width: 400px; margin-bottom: 22px; padding: 0 12px; font-size: 17px; line-height: 1.4; }
+.reward-overlay img { width: 180px; height: auto; animation: bounce 1s infinite; filter: drop-shadow(0 10px 18px rgba(120,90,60,0.25)); }
+.reward-animal {
+  font-size: 200px; line-height: 1;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.18));
+  animation: rewardPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+@keyframes rewardPop {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+@media (max-width: 480px) {
+  .reward-animal { font-size: 150px; }
+}
+.reward-overlay button { background: var(--pink); color: white; font-weight: 700; border: none; padding: 14px 32px; border-radius: 16px; cursor: pointer; font-size: 17px; font-family: inherit; box-shadow: 0 6px 18px rgba(184,106,126,0.4); }
+.reward-overlay button:active { transform: scale(0.97); }
+
+/* Animal en grand quand on clique dans le coffre */
+.collection-card.unlocked { cursor: pointer; }
+.zoom-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(60, 45, 40, 0.82);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  z-index: 400; align-items: center; justify-content: center; flex-direction: column;
+  padding: 24px; cursor: pointer;
+}
+.zoom-overlay.show { display: flex; animation: fadeIn 0.25s; }
+.zoom-overlay .zoom-animal {
+  font-size: min(62vw, 320px); line-height: 1;
+  filter: drop-shadow(0 12px 26px rgba(0,0,0,0.4));
+  animation: rewardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+.zoom-overlay .zoom-name {
+  font-family: 'Caveat', cursive; font-weight: 700; color: #fff;
+  font-size: 46px; line-height: 1; margin-top: 14px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.45);
+}
+.zoom-overlay .zoom-hint { color: rgba(255,255,255,0.75); font-size: 14px; margin-top: 20px; }
+
+@media (max-width: 380px) {
+  .profile-card { width: 145px; }
+  .profile-card .pic-wrap, .profile-card img { width: 110px; height: auto; max-height: 140px; }
+  .mascot-img { width: 130px; }
+}
+</style>
+</head>
+<body>
+<div class="timer-bar" id="timerBar" hidden>
+  <div class="timer-disc-wrap">
+    <div class="timer-disc" id="timerDisc"></div>
+    <div class="timer-time" id="timerTime">0:00</div>
+  </div>
+  <div class="timer-msg" id="timerMsg">C'è ancora tempo</div>
+</div>
+<div class="container">
+
+  <!-- Profile select -->
+  <div class="profile-select" id="profileScreen">
+    <div class="profile-bg"></div>
+    <div class="stars-jar stars-jar-vittoria" id="jarVittoria"></div>
+    <h1>Benvenuta</h1>
+    <p class="sub">Ciao Vittoria!</p>
+    <div class="zones">
+      <div class="zone zone-vittoria">
+        <div class="profile-card" onclick="selectKid('vittoria')">
+          <div class="pic-wrap"><img src="vittoria.jpg" alt="Vittoria"></div>
+          <h2>·Vittoria·</h2>
+          <div class="card-count"><span id="ptsVittoria">0</span><span class="star-icon">★</span></div>
+          <div class="milestones-row" id="milestonesVittoria"></div>
+        </div>
+      </div>
+    </div>
+    <button class="parent-btn" onclick="openParent()">⚙ Spazio genitori</button>
+  </div>
+
+  <!-- Main screen -->
+  <div class="main" id="mainScreen">
+    <div class="main-bg"></div>
+    <div class="main-top">
+      <div class="header">
+        <button class="icon-btn" onclick="goBack()">←</button>
+        <div class="kid-name"><span class="heart">·</span><span id="kidName"></span><span class="heart">·</span></div>
+        <button class="icon-btn" onclick="openParent()">⚙</button>
+      </div>
+
+      <div class="day-bar">
+        <span>Oggi · <span id="momentLabel">mattina</span> <span id="momentEmoji">☀️</span></span>
+        <span class="date" id="dateLabel"></span>
+      </div>
+
+      <div class="mascot-zone">
+        <img src="vittoria.jpg" class="mascot-img" id="mascot" alt="mascotte">
+      </div>
+
+    </div>
+
+    <div class="main-center">
+      <div class="slots-wrap">
+        <div class="slots-row" id="slotsRow"></div>
+      </div>
+    </div>
+
+    <div class="main-bottom">
+      <button class="collection-btn" onclick="openCollection()">
+        <span class="chest-icon">📔</span>
+        <span class="chest-text">Il mio scrigno degli animali</span>
+        <span class="chest-count"><span id="collectionCount">0</span>/<span id="collectionTotal">40</span></span>
+      </button>
+      <div class="milestone">
+        <div class="big" id="milestoneText">🎁 Regalo tra <span id="daysLeft">180</span> stelle</div>
+        <div><span id="totalDays">0</span> stelle già guadagnate</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Parent modal -->
+<div class="modal-bg" id="parentModal">
+  <div class="modal">
+    <h3>Spazio genitori</h3>
+    <div id="parentStats"></div>
+    <div class="section">
+      <div class="section-title">Modalità prova (far avanzare il tempo)</div>
+      <div class="btn-row">
+        <button class="test" onclick="advanceDay(1)">+1 giorno ⏩</button>
+        <button class="test" onclick="advanceDay(7)">+7 giorni ⏩</button>
+      </div>
+      <button class="neutral" onclick="resetSimDate()">Torna a oggi</button>
+    </div>
+    <div class="section">
+      <div class="section-title">Clessidra (timer visivo)</div>
+      <div id="timerInactive">
+        <div class="btn-row" style="margin-bottom: 8px;">
+          <button class="test" onclick="startTimer(3)">3 min</button>
+          <button class="test" onclick="startTimer(5)">5 min</button>
+          <button class="test" onclick="startTimer(10)">10 min</button>
+          <button class="test" onclick="startTimer(15)">15 min</button>
+        </div>
+        <div class="btn-row">
+          <input type="number" id="customTimerMinutes" min="1" max="120" placeholder="altro" class="timer-input">
+          <button class="test" onclick="startTimerCustom()">Avvia</button>
+        </div>
+      </div>
+      <div id="timerActiveBlock" hidden>
+        <div class="row"><strong>Clessidra in corso</strong><span id="timerActiveText" style="font-family:'Caveat',cursive;font-size:22px;color:var(--pink-deep)">--</span></div>
+        <button class="danger" onclick="stopTimer()">Ferma la clessidra</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Forza il momento della giornata</div>
+      <div class="btn-row">
+        <button class="test" onclick="setSimMoment('morning')">☀️ Mattina</button>
+        <button class="test" onclick="setSimMoment('evening')">🌙 Sera</button>
+      </div>
+      <button class="neutral" onclick="setSimMoment(null)">Secondo l'ora</button>
+    </div>
+    <div class="section">
+      <div class="section-title">Azzera</div>
+      <button class="danger" onclick="resetAll()">Cancella tutto</button>
+    </div>
+    <button class="neutral" onclick="closeParent()">Chiudi</button>
+  </div>
+</div>
+
+<!-- Collection modal -->
+<div class="modal-bg" id="collectionModalBg">
+  <div class="modal collection-modal-content">
+    <div class="collection-head">
+      <h3 id="collectionTitle">📔 Il mio scrigno</h3>
+      <div class="collection-stat"><b id="collectionStatNum">0</b> / 40 animali</div>
+    </div>
+    <div class="collection-grid" id="collectionGrid"></div>
+    <button class="neutral" onclick="closeCollection()">Chiudi</button>
+  </div>
+</div>
+
+<!-- Reward overlay -->
+<div class="reward-overlay" id="rewardOverlay">
+  <div class="reward-animal" id="rewardAnimal">🦁</div>
+  <h2 id="rewardTitle">✨ Tutte le luci! ✨</h2>
+  <p id="rewardText"></p>
+  <button onclick="closeReward()">Fantastico!</button>
+</div>
+
+<!-- Animal en grand -->
+<div class="zoom-overlay" id="animalZoom" onclick="closeAnimalZoom()">
+  <div class="zoom-animal" id="zoomAnimal">🦁</div>
+  <div class="zoom-name" id="zoomName">il Leone</div>
+  <div class="zoom-hint">Tocca per chiudere</div>
+</div>
+
+<script>
+// 6 slots, chacun avec une tâche du matin (au-dessus) et une du soir (en-dessous).
+// Chaque lumière s'allume à mi-puissance quand 1 des 2 tâches est faite, à pleine puissance quand les 2 le sont.
+const SLOTS = [
+  { morning: { id: 'lit',      icon: '🛏️', label: "Rifare il letto" },
+    evening: { id: 'diner',    icon: '🍽️', label: "Cena" } },
+  { morning: { id: 'habit',    icon: '👕', label: "Vestirsi" },
+    evening: { id: 'ranger',   icon: '🧸', label: "Mettere in ordine" } },
+  { morning: { id: 'dents_m',  icon: '🪥', label: "Lavare i denti" },
+    evening: { id: 'dents_s',  icon: '🪥', label: "Lavare i denti" } },
+  { morning: { id: 'petitdej', icon: '🥣', label: "Colazione" },
+    evening: { id: 'noTV',     icon: '📺', label: "Spegnere i cartoni animati" } },
+  { morning: { id: 'bonjour',  icon: '👋', label: "Dire buongiorno" },
+    evening: { id: 'pyjama',   icon: '🌙', label: "Pigiama" } },
+  { morning: { id: 'ecole',    icon: '🎒', label: "Andare a scuola" },
+    evening: { id: 'dodo',     icon: '📖', label: "Storia e nanna" } }
+];
+const ALL_TASKS = SLOTS.flatMap(s => [s.morning, s.evening]);
+const DAY_GOAL_COUNT = ALL_TASKS.length; // toutes les lumières à fond = 12
+
+const ANIMALS = [
+  { emoji: '🦁', name: 'il Leone' },
+  { emoji: '🐘', name: "l'Elefante" },
+  { emoji: '🦒', name: 'la Giraffa' },
+  { emoji: '🦓', name: 'la Zebra' },
+  { emoji: '🐅', name: 'la Tigre' },
+  { emoji: '🐆', name: 'il Leopardo' },
+  { emoji: '🦔', name: 'il Riccio' },
+  { emoji: '🦌', name: 'il Cervo' },
+  { emoji: '🦏', name: 'il Rinoceronte' },
+  { emoji: '🦛', name: "l'Ippopotamo" },
+  { emoji: '🐊', name: 'il Coccodrillo' },
+  { emoji: '🐢', name: 'la Tartaruga' },
+  { emoji: '🦎', name: 'il Camaleonte' },
+  { emoji: '🐍', name: 'il Serpente' },
+  { emoji: '🦅', name: "l'Aquila" },
+  { emoji: '🦉', name: 'la Civetta' },
+  { emoji: '🦋', name: 'la Farfalla' },
+  { emoji: '🐠', name: 'il Pesce' },
+  { emoji: '🦈', name: 'lo Squalo' },
+  { emoji: '🐬', name: 'il Delfino' },
+  { emoji: '🐳', name: 'la Balena' },
+  { emoji: '🐙', name: 'il Polpo' },
+  { emoji: '🦀', name: 'il Granchio' },
+  { emoji: '🐧', name: 'il Pinguino' },
+  { emoji: '🦩', name: 'il Fenicottero' },
+  { emoji: '🦜', name: 'il Pappagallo' },
+  { emoji: '🦚', name: 'il Pavone' },
+  { emoji: '🐝', name: "l'Ape" },
+  { emoji: '🐞', name: 'la Coccinella' },
+  { emoji: '🐌', name: 'la Lumaca' },
+  { emoji: '🐿️', name: 'lo Scoiattolo' },
+  { emoji: '🦝', name: 'il Procione' },
+  { emoji: '🦊', name: 'la Volpe' },
+  { emoji: '🐻', name: "l'Orso" },
+  { emoji: '🐼', name: 'il Panda' },
+  { emoji: '🐨', name: 'il Koala' },
+  { emoji: '🐰', name: 'il Coniglio' },
+  { emoji: '🦘', name: 'il Canguro' },
+  { emoji: '🐵', name: 'la Scimmia' },
+  { emoji: '🦥', name: 'il Bradipo' }
+];
+function getMomentAnimalIdx(dateStr, kid, moment) {
+  let h = 0;
+  for (let i = 0; i < dateStr.length; i++) h = ((h * 31) + dateStr.charCodeAt(i)) >>> 0;
+  const baseIdx = h % ANIMALS.length;
+  // 2 animaux différents par jour (matin, soir)
+  const offsets = { vittoria: { morning: 0, evening: 20 } };
+  return (baseIdx + offsets[kid][moment]) % ANIMALS.length;
+}
+function getMomentAnimal(dateStr, kid, moment) {
+  return ANIMALS[getMomentAnimalIdx(dateStr, kid, moment)];
+}
+
+function migrateCollection(kid) {
+  if (state[kid].collection) return;
+  state[kid].collection = {};
+  (state[kid].rewardedKeys || []).forEach(key => {
+    const parts = key.split('_');
+    if (parts.length !== 2) return;
+    const [moment, dateStr] = parts;
+    if (moment !== 'morning' && moment !== 'evening') return;
+    const idx = getMomentAnimalIdx(dateStr, kid, moment);
+    if (!state[kid].collection[idx]) {
+      state[kid].collection[idx] = { firstSeen: dateStr + '|' + moment, count: 0 };
+    }
+    state[kid].collection[idx].count++;
+  });
+}
+
+function recordAnimalUnlock(kid, dateStr, moment) {
+  if (!state[kid].collection) state[kid].collection = {};
+  const idx = getMomentAnimalIdx(dateStr, kid, moment);
+  if (!state[kid].collection[idx]) {
+    state[kid].collection[idx] = { firstSeen: dateStr + '|' + moment, count: 0 };
+  }
+  state[kid].collection[idx].count++;
+}
+
+function collectionSize(kid) {
+  return Object.keys(state[kid].collection || {}).length;
+}
+const KIDS = ['vittoria'];
+const KID_NAMES = { vittoria: 'Vittoria' };
+const KID_IMAGES = { vittoria: 'vittoria.jpg' };
+const STORAGE_KEY = 'mascotte_vittoria_v1';
+
+let state;
+state = loadState();
+let currentKid = null;
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.vittoria) {
+        if (!s.lastSeenStars) s.lastSeenStars = { vittoria: 0 };
+        if (!s.simMoment) s.simMoment = null;
+        if (!('timer' in s)) s.timer = null;
+        return s;
+      }
+    }
+  } catch (e) {}
+  return {
+    vittoria: { tasks: {}, startDate: todayISO(0), rewardedKeys: [], collection: {} },
+    lastSeenStars: { vittoria: 0 },
+    simOffset: 0,
+    simMoment: null,
+    timer: null
+  };
+}
+
+function currentMoment() {
+  if (state && state.simMoment) return state.simMoment;
+  return new Date().getHours() < 12 ? 'morning' : 'evening';
+}
+function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+function todayISO(forceOffset) {
+  const d = new Date();
+  const off = (typeof forceOffset === 'number') ? forceOffset : ((state && state.simOffset) || 0);
+  d.setDate(d.getDate() + off);
+  return d.toISOString().slice(0, 10);
+}
+function today() { return todayISO(); }
+function todayDate() {
+  const d = new Date();
+  d.setDate(d.getDate() + ((state && state.simOffset) || 0));
+  return d;
+}
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const days = ['dom', 'lun', 'mar', 'mer', 'gio', 'ven', 'sab'];
+  const months = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+  return days[d.getDay()] + ' ' + d.getDate() + ' ' + months[d.getMonth()];
+}
+
+function getMomentState(kid, dateStr, moment) {
+  const day = state[kid].tasks[dateStr];
+  if (!day) return {};
+  // moment = 'morning' ou 'evening'
+  return day[moment] || {};
+}
+
+function lightsOnForMoment(kid, dateStr, moment) {
+  const m = getMomentState(kid, dateStr, moment);
+  let n = 0;
+  for (let i = 0; i < SLOTS.length; i++) if (m[i]) n++;
+  return n;
+}
+function lightsOnForDay(kid, dateStr) {
+  return lightsOnForMoment(kid, dateStr, 'morning') + lightsOnForMoment(kid, dateStr, 'evening');
+}
+function momentFull(kid, dateStr, moment) { return lightsOnForMoment(kid, dateStr, moment) >= SLOTS.length; }
+function isDayFull(kid, dateStr) { return momentFull(kid, dateStr, 'morning') && momentFull(kid, dateStr, 'evening'); }
+function totalStars(kid) {
+  let n = state[kid].bonusStars || 0;
+  Object.keys(state[kid].tasks).forEach(d => { n += lightsOnForDay(kid, d); });
+  return n;
+}
+function totalSuccessfulDays(kid) {
+  let n = 0;
+  Object.keys(state[kid].tasks).forEach(d => { if (isDayFull(kid, d)) n++; });
+  return n;
+}
+
+function renderStarsJar(elId, count, side, lastSeen) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  if (count === 0) return;
+  const w = el.clientWidth;
+  if (w === 0) return;
+  const isMobile = window.matchMedia('(max-width: 760px)').matches;
+  const baseSize = isMobile ? 40 : 52;
+  const colSpace = baseSize * 0.7;
+  const rowH = baseSize * 0.55;
+  const padding = baseSize * 0.45; // assez d'air pour que la rotation ne déborde pas
+  const cols = Math.max(1, Math.floor((w - padding * 2 - baseSize * 0.4) / colSpace));
+  const safeLastSeen = (typeof lastSeen === 'number') ? lastSeen : count;
+  for (let i = 0; i < count; i++) {
+    const s = document.createElement('span');
+    s.className = 'pile-star';
+    s.textContent = '★';
+    const row = Math.floor(i / cols);
+    const col = i % cols;
+    const brickOffset = (row % 2) * (colSpace * 0.5);
+    const jitterX = (((i * 7) % 13) - 6);
+    const jitterY = (((i * 11) % 9) - 4);
+    const rot = ((i * 29) % 31) - 15;
+    const scale = 0.85 + ((i * 17) % 5) * 0.06;
+    const offset = padding + col * colSpace + brickOffset + jitterX;
+    if (side === 'right') s.style.right = offset + 'px';
+    else                  s.style.left  = offset + 'px';
+    s.style.bottom = (padding + row * rowH + jitterY) + 'px';
+    s.style.transform = `rotate(${rot}deg) scale(${scale})`;
+    s.style.zIndex = i;
+    if (i >= safeLastSeen) {
+      s.classList.add('falling');
+      s.style.setProperty('--fall-delay', ((i - safeLastSeen) * 70) + 'ms');
+    }
+    el.appendChild(s);
+  }
+}
+
+const MILESTONES = [30, 60, 90, 120, 150, 180];
+
+function renderMilestones(elId, count) {
+  const el = document.getElementById(elId);
+  el.innerHTML = '';
+  MILESTONES.forEach(threshold => {
+    const span = document.createElement('span');
+    span.className = 'milestone-chest';
+    if (count >= threshold) span.classList.add('unlocked');
+    span.innerHTML = `🎁<span class="label">${threshold}</span>`;
+    el.appendChild(span);
+  });
+}
+
+function refreshProfileScreen() {
+  const sideMap = { vittoria: 'left' };
+  if (!state.lastSeenStars) {
+    state.lastSeenStars = { vittoria: totalStars('vittoria') };
+    saveState();
+  }
+  let needsSave = false;
+  KIDS.forEach(k => {
+    const current = totalStars(k);
+    const lastSeen = state.lastSeenStars[k] || 0;
+    const cap = 'Vittoria';
+    document.getElementById('pts' + cap).textContent = current;
+    renderStarsJar('jar' + cap, current, sideMap[k], lastSeen);
+    renderMilestones('milestones' + cap, current);
+    if (state.lastSeenStars[k] !== current) {
+      state.lastSeenStars[k] = current;
+      needsSave = true;
+    }
+  });
+  if (needsSave) saveState();
+}
+
+let _resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    if (!currentKid) refreshProfileScreen();
+  }, 120);
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (currentKid) refreshAll();
+    else refreshProfileScreen();
+  }
+});
+
+function selectKid(kid) {
+  currentKid = kid;
+  document.getElementById('profileScreen').style.display = 'none';
+  document.getElementById('mainScreen').style.display = 'block';
+  document.getElementById('kidName').textContent = KID_NAMES[kid];
+  document.getElementById('mascot').src = KID_IMAGES[kid];
+  buildSlotsRow();
+  refreshAll();
+  ensureTimerTick();
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  currentKid = null;
+  document.getElementById('mainScreen').style.display = 'none';
+  document.getElementById('profileScreen').style.display = 'block';
+  refreshProfileScreen();
+}
+
+function buildSlotsRow() {
+  const row = document.getElementById('slotsRow');
+  row.innerHTML = '';
+  SLOTS.forEach((slot, idx) => row.appendChild(makeSlotEl(slot, idx)));
+}
+function makeSlotEl(slot, idx) {
+  const el = document.createElement('div');
+  el.className = 'slot';
+  el.dataset.idx = idx;
+  el.innerHTML = `
+    <div class="task-btn morning">
+      <span class="icon">${slot.morning.icon}</span>
+      <span class="label">${slot.morning.label}</span>
+    </div>
+    <span class="slot-light" role="button" tabindex="0"><span class="star">⭐</span></span>
+    <div class="task-btn evening">
+      <span class="icon">${slot.evening.icon}</span>
+      <span class="label">${slot.evening.label}</span>
+    </div>
+  `;
+  el.addEventListener('click', () => toggleLight(idx));
+  return el;
+}
+
+function toggleLight(idx) {
+  const d = today();
+  const m = currentMoment();
+  if (!state[currentKid].tasks[d]) state[currentKid].tasks[d] = {};
+  if (!state[currentKid].tasks[d][m]) state[currentKid].tasks[d][m] = {};
+  const moment = state[currentKid].tasks[d][m];
+  const wasOn = !!moment[idx];
+  moment[idx] = !wasOn;
+  saveState();
+  if (!wasOn) {
+    const lightEl = document.querySelector(`.slot[data-idx="${idx}"] .slot-light`);
+    if (lightEl) burstAt(lightEl);
+    bounceMascot();
+  }
+  syncSlots();
+  renderMilestone();
+  if (!wasOn) setTimeout(checkRewards, 250);
+}
+
+function refreshAll() {
+  document.getElementById('dateLabel').textContent = fmtDate(today());
+  const m = currentMoment();
+  document.getElementById('momentLabel').textContent = m === 'morning' ? 'mattina' : 'sera';
+  document.getElementById('momentEmoji').textContent = m === 'morning' ? '☀️' : '🌙';
+  const main = document.getElementById('mainScreen');
+  main.classList.toggle('morning', m === 'morning');
+  main.classList.toggle('evening', m === 'evening');
+  syncSlots();
+  renderMilestone();
+}
+
+function syncSlots() {
+  const m = currentMoment();
+  const moment = getMomentState(currentKid, today(), m);
+  const isMorning = (m === 'morning');
+  document.querySelectorAll('.slot').forEach(slotEl => {
+    const idx = parseInt(slotEl.dataset.idx, 10);
+    const on = !!moment[idx];
+    slotEl.classList.toggle('on', on);
+    slotEl.querySelector('.task-btn.morning').classList.toggle('moment-active', isMorning);
+    slotEl.querySelector('.task-btn.evening').classList.toggle('moment-active', !isMorning);
+    slotEl.querySelector('.task-btn.morning').classList.toggle('done', isMorning && on);
+    slotEl.querySelector('.task-btn.evening').classList.toggle('done', !isMorning && on);
+    const lightEl = slotEl.querySelector('.slot-light');
+    lightEl.classList.toggle('full', on);
+    lightEl.classList.remove('half');
+  });
+}
+
+function burstAt(el) {
+  const r = el.getBoundingClientRect();
+  const b = document.createElement('div');
+  b.className = 'burst';
+  b.textContent = '⭐';
+  b.style.left = (r.left + r.width / 2 - 18) + 'px';
+  b.style.top  = (r.top  + r.height / 2 - 18) + 'px';
+  document.body.appendChild(b);
+  setTimeout(() => b.remove(), 950);
+}
+function bounceMascot() {
+  const m = document.getElementById('mascot');
+  m.classList.remove('bounce'); void m.offsetWidth; m.classList.add('bounce');
+}
+
+function renderMilestone() {
+  const stars = totalStars(currentKid);
+  const target = 180;
+  const left = Math.max(0, target - stars);
+  document.getElementById('totalDays').textContent = stars;
+  if (left === 0) {
+    document.getElementById('milestoneText').innerHTML = '🎁 GRANDE REGALO SBLOCCATO! 🎁';
+  } else {
+    document.getElementById('milestoneText').innerHTML = '🎁 Regalo tra <span id="daysLeft">' + left + '</span> stelle';
+  }
+  document.getElementById('collectionCount').textContent = collectionSize(currentKid);
+  document.getElementById('collectionTotal').textContent = ANIMALS.length;
+}
+
+function openCollection() {
+  if (!currentKid) return;
+  const coll = state[currentKid].collection || {};
+  document.getElementById('collectionTitle').textContent = '📔 Scrigno di ' + KID_NAMES[currentKid];
+  document.getElementById('collectionStatNum').textContent = Object.keys(coll).length;
+  const grid = document.getElementById('collectionGrid');
+  grid.innerHTML = '';
+  for (let i = 0; i < ANIMALS.length; i++) {
+    const card = document.createElement('div');
+    const entry = coll[i];
+    if (entry) {
+      card.className = 'collection-card unlocked';
+      card.innerHTML = `<span class="ico">${ANIMALS[i].emoji}</span>` +
+        (entry.count > 1 ? `<span class="count">×${entry.count}</span>` : '');
+      card.title = ANIMALS[i].name;
+      card.addEventListener('click', () => openAnimalZoom(i));
+    } else {
+      card.className = 'collection-card locked';
+      card.innerHTML = `<span class="ico">?</span>`;
+    }
+    grid.appendChild(card);
+  }
+  document.getElementById('collectionModalBg').classList.add('show');
+}
+function closeCollection() {
+  document.getElementById('collectionModalBg').classList.remove('show');
+}
+
+function openAnimalZoom(idx) {
+  document.getElementById('zoomAnimal').textContent = ANIMALS[idx].emoji;
+  document.getElementById('zoomName').textContent = ANIMALS[idx].name;
+  document.getElementById('animalZoom').classList.add('show');
+}
+function closeAnimalZoom() {
+  document.getElementById('animalZoom').classList.remove('show');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAnimalZoom();
+});
+
+function checkRewards() {
+  const todayStr = today();
+  const m = currentMoment();
+  if (momentFull(currentKid, todayStr, m)) {
+    const key = m + '_' + todayStr;
+    if (!state[currentKid].rewardedKeys.includes(key)) {
+      state[currentKid].rewardedKeys.push(key);
+      recordAnimalUnlock(currentKid, todayStr, m);
+      saveState();
+      const animal = getMomentAnimal(todayStr, currentKid, m);
+      showAnimalReward(animal, m);
+    }
+  }
+}
+
+function showAnimalReward(animal, moment) {
+  const periodLabel = moment === 'morning' ? 'della mattina' : 'della sera';
+  document.getElementById('rewardAnimal').textContent = animal.emoji;
+  document.getElementById('rewardTitle').textContent = '✨ Tutte le luci ' + periodLabel + '! ✨';
+  document.getElementById('rewardText').innerHTML = `Brava, hai scoperto <b>${animal.name}</b>!`;
+  document.getElementById('rewardOverlay').classList.add('show');
+}
+function closeReward() { document.getElementById('rewardOverlay').classList.remove('show'); }
+
+function openParent() {
+  const stats = document.getElementById('parentStats');
+  let html = '';
+  KIDS.forEach(k => {
+    const stars = totalStars(k);
+    const fullDays = totalSuccessfulDays(k);
+    const mC = lightsOnForMoment(k, today(), 'morning');
+    const eC = lightsOnForMoment(k, today(), 'evening');
+    html += `<div class="row"><strong>${KID_NAMES[k]}</strong><span>☀️ ${mC}/${SLOTS.length} · 🌙 ${eC}/${SLOTS.length} · ${stars}/180 ★ · ${fullDays} giorni pieni</span></div>`;
+  });
+  if (state.simOffset || state.simMoment) {
+    let modeBits = [];
+    if (state.simOffset) modeBits.push('+' + state.simOffset + 'g');
+    if (state.simMoment) modeBits.push('forzato ' + (state.simMoment === 'morning' ? 'mattina' : 'sera'));
+    html += `<div class="row" style="color:var(--gold-deep)"><strong>⏩ Modalità prova</strong><span>${modeBits.join(' · ')}</span></div>`;
+  }
+  stats.innerHTML = html;
+  document.getElementById('parentModal').classList.add('show');
+  syncTimerModal();
+}
+
+function setSimMoment(m) {
+  state.simMoment = m;
+  saveState();
+  closeParent();
+  if (currentKid) refreshAll();
+}
+
+/* Sablier visuel */
+let _timerInterval = null;
+
+function startTimer(minutes) {
+  if (!minutes || minutes < 1) return;
+  state.timer = { startedAt: Date.now(), durationMs: Math.round(minutes * 60 * 1000) };
+  saveState();
+  closeParent();
+  ensureTimerTick();
+}
+function startTimerCustom() {
+  const input = document.getElementById('customTimerMinutes');
+  const v = parseInt(input.value, 10);
+  if (!v || v < 1) return;
+  startTimer(v);
+  input.value = '';
+}
+function stopTimer() {
+  state.timer = null;
+  saveState();
+  stopTimerTick();
+  const bar = document.getElementById('timerBar');
+  if (bar) bar.hidden = true;
+  if (document.getElementById('parentModal').classList.contains('show')) syncTimerModal();
+}
+function timerRemainingMs() {
+  if (!state.timer) return 0;
+  return Math.max(0, state.timer.durationMs - (Date.now() - state.timer.startedAt));
+}
+function ensureTimerTick() {
+  if (!state.timer) {
+    stopTimerTick();
+    const bar = document.getElementById('timerBar');
+    if (bar) bar.hidden = true;
+    return;
+  }
+  if (timerRemainingMs() <= 0) { onTimerEnd(); return; }
+  if (!_timerInterval) {
+    _timerInterval = setInterval(updateTimerUI, 300);
+  }
+  updateTimerUI();
+}
+function stopTimerTick() {
+  if (_timerInterval) { clearInterval(_timerInterval); _timerInterval = null; }
+}
+function updateTimerUI() {
+  if (!state.timer) { stopTimerTick(); return; }
+  const remaining = timerRemainingMs();
+  if (remaining <= 0) { onTimerEnd(); return; }
+  const bar = document.getElementById('timerBar');
+  if (bar) {
+    bar.hidden = false;
+    const main = document.getElementById('mainScreen');
+    const isEvening = main && main.style.display !== 'none' && main.classList.contains('evening');
+    bar.classList.toggle('evening-theme', !!isEvening);
+    const pct = remaining / state.timer.durationMs;
+    bar.style.setProperty('--remaining-deg', (pct * 360).toFixed(1) + 'deg');
+    document.getElementById('timerTime').textContent = formatTimerMs(remaining);
+    const disc = document.getElementById('timerDisc');
+    disc.classList.toggle('ending', remaining <= 30000);
+    document.getElementById('timerMsg').textContent = remaining <= 30000
+      ? 'Ancora pochi secondi!'
+      : (remaining <= 60000 ? 'Ultimo minuto!' : 'C\'è ancora tempo');
+  }
+  syncTimerModal();
+}
+function syncTimerModal() {
+  const inactive = document.getElementById('timerInactive');
+  const active = document.getElementById('timerActiveBlock');
+  if (!inactive || !active) return;
+  if (state.timer && timerRemainingMs() > 0) {
+    inactive.hidden = true;
+    active.hidden = false;
+    document.getElementById('timerActiveText').textContent = formatTimerMs(timerRemainingMs());
+  } else {
+    inactive.hidden = false;
+    active.hidden = true;
+  }
+}
+function onTimerEnd() {
+  state.timer = null;
+  saveState();
+  stopTimerTick();
+  const bar = document.getElementById('timerBar');
+  if (bar) bar.hidden = true;
+  syncTimerModal();
+}
+function formatTimerMs(ms) {
+  const totalSec = Math.ceil(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+function closeParent() { document.getElementById('parentModal').classList.remove('show'); }
+
+function advanceDay(n) {
+  state.simOffset = (state.simOffset || 0) + n;
+  saveState();
+  closeParent();
+  if (currentKid) refreshAll(); else refreshProfileScreen();
+}
+function resetSimDate() {
+  state.simOffset = 0;
+  saveState();
+  closeParent();
+  if (currentKid) refreshAll();
+}
+function resetAll() {
+  if (!confirm('Cancellare tutto (storico, stelle)?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = loadState();
+  saveState();
+  closeParent();
+  goBack();
+}
+
+KIDS.forEach(migrateCollection);
+saveState();
+refreshProfileScreen();
+ensureTimerTick();
+</script>
+</body>
+</html>
